@@ -10,26 +10,42 @@ spec:
   generators:
     - list:
         elements:
+{{- if .Values.clusters }}
+{{- /* Multi-cluster mode: expand cluster x role pairs */}}
+{{- range $clusterName, $c := .Values.clusters }}
+  {{- range $roleName, $r := $c.roles }}
+    {{- if $r.enabled }}
+        - cluster: {{ $clusterName }}
+          role: {{ $roleName }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- else }}
+{{- /* Legacy single-cluster mode */}}
 {{- range $name, $config := .Values.roles }}
-{{- if $config.enabled }}
-        - name: {{ $name }}
+  {{- if $config.enabled }}
+        - role: {{ $name }}
+  {{- end }}
 {{- end }}
 {{- end }}
   template:
     metadata:
-      name: '{{ .Release.Name }}-roles-{{ "{{" }} .name {{ "}}" }}'
+      name: '{{ .Release.Name }}-roles-{{ "{{" }} if .cluster {{ "}}{{" }} .cluster {{ "}}{{else}}{{" }} .role {{ "}}{{end}}" }}'
       namespace: "openshift-gitops"
     spec:
       project: default
       destination:
-        server: {{ .Values.spec.destination.server }}
+        server: {{ "{{" }} if .cluster {{ "}}{{" }} (index $.Values.clusters .cluster).spec.destination.server | default $.Values.spec.destination.server {{ "}}{{else}}{{" }} $.Values.spec.destination.server {{ "}}{{end}}" }}
         namespace: "openshift-gitops"
       source:
         repoURL: {{ .Values.spec.source.repoURL }}
-        path: roles/{{ "{{" }} .name {{ "}}" }}
+        path: roles/{{ "{{" }} .role | default .role {{ "}}" }}
         targetRevision: {{ .Values.spec.source.targetRevision }}
         helm:
           valuesObject:
             spec:
 {{ .Values.spec | toYaml | nindent 14 }}
+            cluster:
+              name: {{ "{{" }} if .cluster {{ "}}{{" }} .cluster {{ "}}{{else}}{{" }} $.Values.config.cluster.name {{ "}}{{end}}" }}
+            role: {{ "{{" }} .role | default .role {{ "}}" }}
 {{ .Values.config | toYaml | nindent 12 }}
