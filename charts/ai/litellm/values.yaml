@@ -1,0 +1,40 @@
+cluster:
+  top_level_domain: example.com
+  name: openshift
+  admin_email: admin@example.com
+  timezone: America/New_York
+  #storage:
+  #  config:
+  #    storageClassName: synology-iscsi
+
+application:
+  name: LiteLLM
+  group: AI/ML
+  icon: subtitles
+  iconColor: ""
+  image: "https://raw.githubusercontent.com/BerriAI/litellm/refs/heads/main/docs/my-website/img/favicon.png"
+  description: "Unified API to manage and deploy LLMs"
+  port: 4000
+  location: 0
+
+pods:
+  main:
+    image:
+      # renovate custom-docker versioning=semver
+      repository: ghcr.io/berriai/litellm-non_root
+      tag: main-v1.75.8-stable
+    env:
+      LITELLM_MASTER_KEY: "sk-secret"
+      LITELLM_SALT_KEY: "sk-salt"
+
+  redis:
+    image:
+      repository: redis
+      tag: "7-alpine"
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"

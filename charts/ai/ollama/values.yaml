@@ -1,0 +1,75 @@
+cluster:
+  top_level_domain: example.com
+  name: openshift
+  admin_email: admin@example.com
+  timezone: America/New_York
+  #storage:
+  #  config:
+  #    storageClassName: synology-iscsi
+
+application:
+  name: Ollama
+  group: AI/ML
+  icon: robot
+  iconColor: ""
+  image: "https://ollama.ai/public/apple-touch-icon.png"
+  description: "Run large language models locally"
+  port: 11434
+  location: 0
+
+ollama:
+  models:
+    # -- List of models to pull at container startup
+    pull:
+      - llama3.2:3b
+      - deepseek-r1:7b
+      - deepseek-r1:1.5b
+
+    # -- List of models to load in memory at container startup
+    run: []
+
+    # -- List of models to create at container startup, there are two options
+    # 1. Create a raw model
+    # 2. Load a model from configMaps, configMaps must be created before and are loaded as volume in "/models" directory.
+    # create:
+    #  - name: llama3.1-ctx32768
+    #    configMapRef: my-configmap
+    #    configMapKeyRef: configmap-key
+    #  - name: llama3.1-ctx32768
+    #    template: |
+    #      FROM llama3.1
+    #      PARAMETER num_ctx 32768
+    create: []
+
+    # -- Automatically remove models present on the disk but not specified in the values file
+    clean: false
+
+  # -- Add insecure flag for pulling at container startup
+  insecure: true
+
+  # -- Override ollama-data volume mount path, default: "/root/.ollama"
+  mountPath: ""
+
+  # Data persistence
+  persistence:
+    enabled: true
+    size: "50Gi"
+
+pods:
+  main:
+    image:
+      # renovate custom-docker versioning=semver
+      repository: ollama/ollama
+      tag: "0.3.14"
+    env: {}
+    resources:
+      requests:
+        cpu: "1"
+        memory: "2Gi"
+      limits:
+        cpu: "4"
+        memory: "8Gi"
+    # Enable GPU support if available
+    gpu:
+      enabled: false
+      count: 1

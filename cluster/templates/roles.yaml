@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: {{ .Release.Name }}-roles
+spec:
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/syncPolicy
+  goTemplate: true
+  generators:
+    - list:
+        elements:
+{{- range $name, $config := .Values.roles }}
+{{- if $config.enabled }}
+        - name: {{ $name }}
+{{- end }}
+{{- end }}
+  template:
+    metadata:
+      name: '{{ .Release.Name }}-roles-{{ "{{" }} .name {{ "}}" }}'
+      namespace: "openshift-gitops"
+    spec:
+      project: default
+      destination:
+        server: {{ .Values.spec.destination.server }}
+        namespace: "openshift-gitops"
+      source:
+        repoURL: {{ .Values.spec.source.repoURL }}
+        path: roles/{{ "{{" }} .name {{ "}}" }}
+        targetRevision: {{ .Values.spec.source.targetRevision }}
+        helm:
+          valuesObject:
+            spec:
+{{ .Values.spec | toYaml | nindent 14 }}
+{{ .Values.config | toYaml | nindent 12 }}
