@@ -4,9 +4,9 @@ cluster:
   admin_email: admin@example.com
   timezone: America/New_York
 
-#  storage:
-#    config:
-#      storageClassName: synology-iscsi
+  storage:
+    config:
+      storageClassName: synology-iscsi
 
 application:
   name: Open WebUI
