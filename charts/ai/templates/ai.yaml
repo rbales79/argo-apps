@@ -10,24 +10,24 @@ spec:
   generators:
     - list:
         elements:
-        - name: litellm
-          group: ai
-        - name: n8n
-          group: ai
-        - name: ollama
-          group: ai
-       - name: open-webui
-          group: ai
+          - name: litellm
+            group: ai
+          - name: n8n
+            group: ai
+          - name: ollama
+            group: ai
+          - name: open-webui
+            group: ai
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'
       namespace: "openshift-gitops"
     spec:
       ignoreDifferences:
-      - kind: Application
-        group: argoproj.io
-        jsonPointers:
-        - /spec/syncPolicy/automated
+        - kind: Application
+          group: argoproj.io
+          jsonPointers:
+            - /spec/syncPolicy/automated
       project: default
       destination:
         server: {{ .Values.spec.destination.server }}
