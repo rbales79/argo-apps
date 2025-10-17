@@ -12,9 +12,9 @@ cluster:
         path: /volume1/hub
 
 externalSecrets:
-  secret: infiscal-auth-secret
+  secret: infisical-auth-secret
   infisical:
     projectSlug: hub
     environmentSlug: prod
     auth:
-      clientId: infiscal-auth-secret
+      clientId: infisical-auth-secret
