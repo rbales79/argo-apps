@@ -1,7 +1,17 @@
 {
   "name": "DevContainer",
-  "build": { "dockerfile": "Dockerfile" },
-  "postAttachCommand": ["/bin/bash", ".devcontainer/post-install.sh"],
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "runArgs": [
+    "--privileged",
+    "--device=/dev/fuse",
+    "--security-opt=label=disable"
+  ],
+  "postAttachCommand": [
+    "/bin/bash",
+    ".devcontainer/post-install.sh"
+  ],
   "customizations": {
     "vscode": {
       "settings": {
