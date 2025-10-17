@@ -1,0 +1,30 @@
+cluster:
+  top_level_domain: example.com
+  name: openshift
+  admin_email: admin@example.com
+  timezone: America/New_York
+  storage:
+    #config:
+    #  storageClassName: synology-iscsi
+    media:
+      nfs:
+        server: nas
+        path: /volume1/media
+
+application:
+  name: Cyberchef
+  group: Productivity
+  icon: mdi:chef-hat
+  iconColor: ""
+  image: ""
+  description: "The cyber Swiss Army knife"
+  port: 80
+  location: 0
+
+pods:
+  main:
+    image:
+      repository: ghcr.io/gchq/cyberchef
+      # renovate: datasource=docker depName=ghcr.io/gchq/cyberchef versioning=semver
+      tag: 10.19.4
+      pullPolicy: IfNotPresent

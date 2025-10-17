@@ -1,0 +1,14 @@
+{{- if .Capabilities.APIVersions.Has "startpunkt.ullberg.us/v1alpha3" }}
+---
+apiVersion: startpunkt.ullberg.us/v1alpha3
+kind: Application
+metadata:
+  name: nas
+spec:
+  name: Synology
+  group: Infrastructure
+  icon: nas
+  url: http://nas.{{ .Values.cluster.top_level_domain }}
+  info: Storage
+  tags: admin
+{{- end }}

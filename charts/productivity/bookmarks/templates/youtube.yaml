@@ -1,0 +1,13 @@
+{{- if .Capabilities.APIVersions.Has "startpunkt.ullberg.us/v1alpha3" }}
+---
+apiVersion: startpunkt.ullberg.us/v1alpha3
+kind: Bookmark
+metadata:
+  name: youtube
+spec:
+  name: Youtube
+  group: Entertainment
+  icon: simple-icons:youtube
+  url: https://youtube.com/feed/subscriptions
+  info: Streaming
+{{- end }}

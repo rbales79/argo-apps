@@ -1,0 +1,29 @@
+cluster:
+  top_level_domain: example.com
+  name: openshift
+  admin_email: admin@example.com
+  timezone: America/New_York
+  storage:
+    #config:
+    #  storageClassName: synology-iscsi
+    media:
+      nfs:
+        server: nas
+        path: /volume1/media
+
+application:
+  name: Z-Wave JS to MQTT
+  group: Home Automation
+  icon: cbi:zwavejs
+  image: https://avatars.githubusercontent.com/u/54627315
+  description: "Z-Wave JS to MQTT integration."
+  port: 8091
+  tags: admin
+
+pods:
+  main:
+    image:
+      repository: ghcr.io/zwave-js/zwave-js-ui
+      # renovate: datasource=docker depName=ghcr.io/zwave-js/zwave-js-ui versioning=semver
+      tag: 11.4.1
+      pullPolicy: IfNotPresent
