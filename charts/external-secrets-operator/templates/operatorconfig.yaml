@@ -100,7 +100,7 @@ spec:
     annotations: {}
     create: true
     name: ''
-  installCRDs: false
+  installCRDs: true
   image:
     pullPolicy: IfNotPresent
     repository: ghcr.io/external-secrets/external-secrets
