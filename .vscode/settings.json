@@ -1,4 +1,17 @@
 {
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "renovate.json5"
+      ],
+      "url": "https://docs.renovatebot.com/renovate-schema.json"
+    }
+  ],
+  "eslint.validate": [
+    "json",
+    "jsonc",
+    "json5"
+  ],
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "files.encoding": "utf8",
@@ -6,6 +19,29 @@
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
   "files.trimTrailingWhitespace": true,
+  // Disable auto-formatting for Helm template files to prevent breaking {{ }} syntax
+  "files.associations": {
+    "**/charts/**/templates/*.yaml": "helm",
+    "**/cluster/templates/*.yaml": "helm"
+  },
+  "[helm]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null,
+    "editor.autoIndent": "keep",
+    "editor.suggest.showSnippets": false
+  },
+  "[yaml]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "keep",
+    // Only format YAML files that are NOT Helm templates
+    "editor.formatOnSave": false
+  },
+  // Prevent Prettier from formatting Helm templates
+  "prettier.ignorePath": ".prettierignore",
+  // Configure yamllint
+  "yaml.validate": true,
+  "yaml.format.enable": false,
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -14,20 +50,35 @@
     "rmdir": false,
     "del": false,
     "kill": false,
-    "curl": false,
-    "wget": false,
-    "eval": false,
-    "chmod": false,
-    "chown": false,
+    "curl": true,
+    "wget": true,
+    "eval": true,
+    "chmod": true,
+    "chown": true,
     "/^Remove-Item\\b/i": false,
     "cd": true,
     "make": true,
     "python3": true,
+    "python": true,
     "find": true,
     "git commit": false,
-    "git": true
+    "git": true,
+    "wc": true,
+    "mv": true,
+    "helm template": true,
+    "grep": true,
+    "task": true,
+    "jq": true,
+    "which": true,
+    "/workspaces/openshift/scripts/find-icons.sh": true
   },
   "yaml.schemas": {
-    "https://www.schemastore.org/yamllint.json": "file:///workspaces/openshift-v2.0/cluster.yaml"
+    "https://www.schemastore.org/yamllint.json": [
+      "file:///workspaces/openshift/cluster/cluster.yaml",
+      "file:///workspaces/openshift/charts/media/sonarr/templates/service.yaml"
+    ]
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
   }
 }

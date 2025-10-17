@@ -18,7 +18,12 @@
         "esbenp.prettier-vscode",
         "mhutchie.git-graph",
         "redhat.vscode-yaml",
-        "ltex-plus.vscode-ltex-plus"
+        "ltex-plus.vscode-ltex-plus",
+        "gaspardruan.taboutx",
+        "fcrespo82.markdown-table-formatter",
+        "mikestead.dotenv",
+        "editorconfig.editorconfig",
+        "task.vscode-task"
       ]
     }
   }
