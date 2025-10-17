@@ -5,5 +5,5 @@ name: n8n
 version: 0.1.0
 kubeVersion: ">=1.22.0-0"
 maintainers:
-  - name: Magnus Ullberg
-    email: magnus@ullberg.us
+  - name: Roy Bales
+    email: rbales79@gmail.com

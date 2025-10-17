@@ -25,8 +25,8 @@ When the user asks to "add a role", "create a role", "add a new role", or mentio
    kubeVersion: ">=1.22.0-0"
 
    maintainers:
-     - name: Magnus Ullberg
-       email: magnus@ullberg.us
+     - name: Roy Bales
+       email: rbales79@gmail.com
    ```
 
 3. **Create Templates Directory**
