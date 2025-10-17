@@ -1,0 +1,48 @@
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: YOUR_REPO_URL
+    targetRevision: HEAD
+
+config:
+  cluster:
+    top_level_domain: example.com
+    name: cluster
+    admin_email: YOUR_EMAIL
+    timezone: YOUR_TIMEZONE
+    storage:
+      democratic-csi:
+        httpConnection:
+          host: nas.roybales.com
+          port: 5000
+        iscsi:
+          targetPortal: nas.roybales.com
+      config:
+        storageClassName: synology-iscsi
+      media:
+        nfs:
+          server: nas.roybales.com
+          path: /volume1/hub
+
+  plex:
+    network:
+      ip: 192.168.1.200
+
+  emqx:
+    network:
+      ip: 192.168.1.201
+
+  certificates:
+    letsencrypt:
+      issuer: production
+
+  externalSecrets:
+    secret: infisical-auth-secret
+    infisical:
+      projectSlug: hub
+      environmentSlug: prod
+
+  network:
+    lan:
+      defaultGateway: 192.168.1.1

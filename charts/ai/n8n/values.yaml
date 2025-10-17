@@ -6,5 +6,5 @@ cluster:
 
 application:
   name: n8n
-  group: AI/ML
+  group: AI
   image: https://docs.n8n.io/_images/n8n-docs-icon.svg

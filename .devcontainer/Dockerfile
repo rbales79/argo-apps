@@ -11,8 +11,8 @@ ENV PATH="$PATH:~/.local/bin"
 # upgrade pip
 RUN python -m pip install --upgrade pip
 
-# install devcontainer requirements
-RUN pip install --no-cache-dir pre-commit
+# install oc and devcontainer requirements
+    pip install --no-cache-dir pre-commit
 
 CMD sleep infinity
 
