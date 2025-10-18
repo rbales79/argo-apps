@@ -34,7 +34,10 @@ democratic-csi:
       zfs:
         datasetParentName: tank/kubernetes/pvcs
         detachedSnapshotsDatasetParentName: tank/kubernetes/snapshots
-        datasetProperties: {}
+        zvolCompression:
+        zvolDedup:
+        zvolEnableReservation: false
+        zvolBlocksize:
       iscsi:
         targetPortalPort: 3260
         targetIQN: iqn.2005-10.org.truenas.ctl:csi
