@@ -8,6 +8,9 @@ cluster:
         port: 443
         protocol: https
         allowInsecure: true
+      sshConnection:
+        host: truenas.roybales.com
+        port: 22
       iscsi:
         targetPortal: truenas.roybales.com
         targetPortalPort: 3260
