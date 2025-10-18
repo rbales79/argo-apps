@@ -5,14 +5,14 @@ cluster:
     democratic-csi:
       httpConnection:
         host: truenas.roybales.com
-        port: 80
-        protocol: http
+        port: 443
+        protocol: https
         allowInsecure: true
       sshConnection:
         host: truenas.roybales.com
         port: 22
       iscsi:
-        targetPortal: "truenas.roybales.com:5000"
+        targetPortal: "truenas.roybales.com:3260"
       secretKeys:
         apiKey: TRUENAS_API_KEY
     config:
