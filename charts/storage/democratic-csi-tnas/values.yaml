@@ -21,10 +21,11 @@ democratic-csi:
   driver:
     existingConfigSecret: democratic-csi-truenas-config
     config:
-      driver: freenas-iscsi
+      driver: freenas-api-iscsi
       httpConnection:
         allowInsecure: true
         protocol: https
+        apiVersion: 2
         connectTimeout: 10
         readTimeout: 30
       zfs:
