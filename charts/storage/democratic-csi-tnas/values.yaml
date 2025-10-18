@@ -27,11 +27,6 @@ democratic-csi:
         protocol: https
         connectTimeout: 10
         readTimeout: 30
-      zfs:
-        datasetParentName: tank/kubernetes/pvcs
-        detachedSnapshotsDatasetParentName: tank/kubernetes/snapshots
-        datasetNameTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
-        datasetProperties: {}
       iscsi:
         targetPortalPort: 3260
         targetIQN: iqn.2005-10.org.truenas.ctl:csi
