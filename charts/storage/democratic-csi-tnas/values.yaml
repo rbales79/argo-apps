@@ -39,9 +39,19 @@ democratic-csi:
         targetPortalPort: 3260
         targetIQN: iqn.2005-10.org.truenas.ctl:csi
         interface: ""
-        extentSize: 0
-        discoveryAuthGroup: 0
+        namePrefix: csi-
         nameSuffix: ""
+        targetGroups:
+          - targetGroupPortalGroup: 1
+            targetGroupInitiatorGroup: 1
+            targetGroupAuthType: None
+            targetGroupAuthGroup:
+        extentInsecureTpc: true
+        extentXenCompat: false
+        extentDisablePhysicalBlocksize: true
+        extentBlocksize: 512
+        extentRpm: "SSD"
+        extentAvailThreshold: 0
 
   csiDriver:
     name: "org.democratic-csi.iscsi-truenas"
