@@ -7,7 +7,7 @@ cluster:
         host: truenas.roybales.com
         port: 443
         protocol: https
-        allowInsecure: false
+        allowInsecure: true
       iscsi:
         targetPortal: truenas.roybales.com
         targetPortalPort: 3260
@@ -23,7 +23,7 @@ democratic-csi:
     config:
       driver: freenas-iscsi
       httpConnection:
-        allowInsecure: false
+        allowInsecure: true
         protocol: https
         connectTimeout: 10
         readTimeout: 30
