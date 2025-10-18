@@ -5,13 +5,14 @@ cluster:
     democratic-csi:
       httpConnection:
         host: truenas.roybales.com
-        port: 443
-        protocol: https
+        port: 80
+        protocol: http
         allowInsecure: true
+      sshConnection:
+        host: truenas.roybales.com
+        port: 22
       iscsi:
-        targetPortal: truenas.roybales.com
-        targetPortalPort: 3260
-        targetIQN: iqn.2005-10.org.truenas.ctl:csi
+        targetPortal: "truenas.roybales.com:5000"
       secretKeys:
         apiKey: TRUENAS_API_KEY
     config:
@@ -21,24 +22,29 @@ democratic-csi:
   driver:
     existingConfigSecret: democratic-csi-tnas-config
     config:
-      driver: freenas-iscsi
-      httpConnection:
-        allowInsecure: true
-        protocol: https
-        connectTimeout: 10
-        readTimeout: 30
+      driver: freenas-api-iscsi
       zfs:
-        datasetParentName: tank/kubernetes/pvcs
-        detachedSnapshotsDatasetParentName: tank/kubernetes/snapshots
-        datasetNameTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
-        datasetProperties: {}
+        datasetParentName: volume1/iscsi/test/vols
+        detachedSnapshotsDatasetParentName: volume1/iscsi/test/snaps
+        zvolCompression: ""
+        zvolDedup: ""
+        zvolEnableReservation: false
+        zvolBlocksize: ""
       iscsi:
-        targetPortalPort: 3260
-        targetIQN: iqn.2005-10.org.truenas.ctl:csi
         interface: ""
-        extentSize: 0
-        discoveryAuthGroup: 0
-        nameSuffix: ""
+        namePrefix: csi-
+        nameSuffix: "-clusterb"
+        targetGroups:
+          - targetGroupPortalGroup: 1
+            targetGroupInitiatorGroup: 2
+            targetGroupAuthType: None
+            targetGroupAuthGroup: ""
+        extentInsecureTpc: true
+        extentXenCompat: false
+        extentDisablePhysicalBlocksize: true
+        extentBlocksize: 512
+        extentRpm: "SSD"
+        extentAvailThreshold: 0
 
   csiDriver:
     name: "org.democratic-csi.iscsi-truenas"
