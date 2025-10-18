@@ -19,7 +19,7 @@ cluster:
 
 democratic-csi:
   driver:
-    existingConfigSecret: democratic-csi-tnas-config
+    existingConfigSecret: democratic-csi-config
     config:
       driver: freenas-iscsi
       httpConnection:
@@ -30,6 +30,7 @@ democratic-csi:
       zfs:
         datasetParentName: tank/kubernetes/pvcs
         detachedSnapshotsDatasetParentName: tank/kubernetes/snapshots
+        datasetNameTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
         datasetProperties: {}
       iscsi:
         targetPortalPort: 3260
