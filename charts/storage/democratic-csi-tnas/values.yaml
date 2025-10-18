@@ -7,12 +7,11 @@ cluster:
         host: truenas.roybales.com
         port: 443
         protocol: https
-        allowInsecure: true
-      sshConnection:
-        host: truenas.roybales.com
-        port: 22
+        allowInsecure: false
       iscsi:
-        targetPortal: "truenas.roybales.com:3260"
+        targetPortal: truenas.roybales.com
+        targetPortalPort: 3260
+        targetIQN: iqn.2005-10.org.truenas.ctl:csi
       secretKeys:
         apiKey: TRUENAS_API_KEY
     config:
@@ -20,31 +19,26 @@ cluster:
 
 democratic-csi:
   driver:
-    existingConfigSecret: democratic-csi-tnas-config
+    existingConfigSecret: democratic-csi-config
     config:
-      driver: freenas-api-iscsi
+      driver: freenas-iscsi
+      httpConnection:
+        allowInsecure: false
+        protocol: https
+        connectTimeout: 10
+        readTimeout: 30
       zfs:
-        datasetParentName: volume1/iscsi/test/vols
-        detachedSnapshotsDatasetParentName: volume1/iscsi/test/snaps
-        zvolCompression: ""
-        zvolDedup: ""
-        zvolEnableReservation: false
-        zvolBlocksize: ""
+        datasetParentName: tank/kubernetes/pvcs
+        detachedSnapshotsDatasetParentName: tank/kubernetes/snapshots
+        datasetNameTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+        datasetProperties: {}
       iscsi:
+        targetPortalPort: 3260
+        targetIQN: iqn.2005-10.org.truenas.ctl:csi
         interface: ""
-        namePrefix: csi-
-        nameSuffix: "-clusterb"
-        targetGroups:
-          - targetGroupPortalGroup: 1
-            targetGroupInitiatorGroup: 2
-            targetGroupAuthType: None
-            targetGroupAuthGroup: ""
-        extentInsecureTpc: true
-        extentXenCompat: false
-        extentDisablePhysicalBlocksize: true
-        extentBlocksize: 512
-        extentRpm: "SSD"
-        extentAvailThreshold: 0
+        extentSize: 0
+        discoveryAuthGroup: 0
+        nameSuffix: ""
 
   csiDriver:
     name: "org.democratic-csi.iscsi-truenas"
