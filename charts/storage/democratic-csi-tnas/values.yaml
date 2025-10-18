@@ -19,7 +19,7 @@ cluster:
 
 democratic-csi:
   driver:
-    existingConfigSecret: democratic-csi-config
+    existingConfigSecret: democratic-csi-tnas-config
     config:
       driver: freenas-iscsi
       httpConnection:
