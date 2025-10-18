@@ -19,9 +19,9 @@ cluster:
 
 democratic-csi:
   driver:
-    existingConfigSecret: democratic-csi-config
+    existingConfigSecret: democratic-csi-truenas-config
     config:
-      driver: freenas-iscsi
+      driver: freenas-api-iscsi
       httpConnection:
         allowInsecure: true
         protocol: https
