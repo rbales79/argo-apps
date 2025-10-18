@@ -1,0 +1,86 @@
+cluster:
+  top_level_domain: example.com
+  name: cluster
+  storage:
+    democratic-csi:
+      httpConnection:
+        host: truenas.roybales.com
+        port: 443
+        protocol: https
+        allowInsecure: false
+      iscsi:
+        targetPortal: truenas.roybales.com
+        targetPortalPort: 3260
+        targetIQN: iqn.2005-10.org.truenas.ctl:csi
+      secretKeys:
+        apiKey: TRUENAS_API_KEY
+    config:
+      storageClassName: truenas-iscsi
+
+democratic-csi:
+  driver:
+    existingConfigSecret: democratic-csi-config
+    config:
+      driver: freenas-iscsi
+      httpConnection:
+        allowInsecure: false
+        protocol: https
+        connectTimeout: 10
+        readTimeout: 30
+      zfs:
+        datasetParentName: tank/kubernetes/pvcs
+        detachedSnapshotsDatasetParentName: tank/kubernetes/snapshots
+        datasetNameTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+        datasetProperties: {}
+      iscsi:
+        targetPortalPort: 3260
+        targetIQN: iqn.2005-10.org.truenas.ctl:csi
+        interface: ""
+        extentSize: 0
+        discoveryAuthGroup: 0
+        nameSuffix: ""
+
+  csiDriver:
+    name: "org.democratic-csi.iscsi-truenas"
+
+  node:
+    rbac:
+      openshift:
+        privileged: true
+    driver:
+      localtimeHostPath: false
+
+  controller:
+    rbac:
+      openshift:
+        privileged: true
+    externalResizer:
+      enabled: true
+    externalSnapshotter:
+      enabled: true
+
+  storageClasses:
+    - name: truenas-iscsi
+      defaultClass: true
+      reclaimPolicy: Delete
+      volumeBindingMode: Immediate
+      allowVolumeExpansion: true
+      parameters:
+        fsType: ext4
+
+      mountOptions: []
+      secrets:
+        provisioner-secret:
+        controller-publish-secret:
+        node-stage-secret:
+        node-publish-secret:
+        controller-expand-secret:
+
+  volumeSnapshotClasses:
+    - name: truenas-iscsi
+      annotations:
+        k10.kasten.io/is-snapshot-class: "true"
+      deletionPolicy: Delete
+      parameters:
+      secrets:
+        snapshotter-secret:
