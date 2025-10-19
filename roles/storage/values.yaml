@@ -11,3 +11,7 @@ config:
     name: cluster
     admin_email: YOUR_EMAIL
     timezone: YOUR_TIMEZONE
+
+network:
+  lan:
+    defaultGateway: 192.168.1.1
