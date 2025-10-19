@@ -7,20 +7,7 @@ spec:
 
 config:
   cluster:
-    top_level_domain: example.com
+    top_level_domain: roybales.com
     name: cluster
     admin_email: YOUR_EMAIL
     timezone: YOUR_TIMEZONE
-    storage:
-      democratic-csi:
-        httpConnection:
-          host: truenas.roybales.com
-          port: 5000
-        iscsi:
-          targetPortal: nas.roybales.com
-      config:
-        storageClassName: truenas-iscsi
-      media:
-        nfs:
-          server: truenas.roybales.com
-          path: /volume1/hub
