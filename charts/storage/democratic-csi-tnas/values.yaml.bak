@@ -8,9 +8,13 @@ cluster:
         port: 443
         protocol: https
         allowInsecure: true
+      sshConnection:
+        host: truenas.roybales.com
+        port: 22
       iscsi:
-        targetPortal: "truenas.roybales.com:3260"
-        iqnPrefix: "iqn.2005-10.org.freenas.ctl"
+        targetPortal: truenas.roybales.com
+        targetPortalPort: 3260
+        targetIQN: iqn.2005-10.org.truenas.ctl:csi
       secretKeys:
         apiKey: TRUENAS_API_KEY
     config:
@@ -22,68 +26,69 @@ democratic-csi:
     config:
       driver: freenas-api-iscsi
       httpConnection:
-        protocol: https
         allowInsecure: true
+        protocol: https
+        apiVersion: 2
+        connectTimeout: 10
+        readTimeout: 30
       zfs:
-        datasetParentName: "volume1/iscsi/test/vols"
-        detachedSnapshotsDatasetParentName: "volume1/iscsi/test/snaps"
-        zvolBlocksize: "16K"
-        zvolCompression: "lz4"
-        thinProvision: true
+        datasetParentName: tank/kubernetes/pvcs
+        detachedSnapshotsDatasetParentName: tank/kubernetes/snapshots
+        zvolCompression:
+        zvolDedup:
+        zvolEnableReservation: false
+        zvolBlocksize:
       iscsi:
-        targetPortals: []
+        targetPortalPort: 3260
+        targetIQN: iqn.2005-10.org.truenas.ctl:csi
+        interface: ""
+        namePrefix: csi-
+        nameSuffix: ""
         targetGroups:
           - targetGroupPortalGroup: 1
             targetGroupInitiatorGroup: 1
             targetGroupAuthType: None
-            targetGroupAuthGroup: ""
-        extentUseThinProvisioning: true
+            targetGroupAuthGroup:
+        extentInsecureTpc: true
+        extentXenCompat: false
         extentDisablePhysicalBlocksize: true
-        extentBlocksize: 4096
+        extentBlocksize: 512
         extentRpm: "SSD"
-        discoveryCHAPAuth: false
-        chap: "disabled"
+        extentAvailThreshold: 0
 
   csiDriver:
-    name: "org.democratic-csi.truenas-iscsi"
+    name: "org.democratic-csi.iscsi-truenas"
 
   node:
     rbac:
       openshift:
         privileged: true
-    hostPID: true
     driver:
-      iscsiDirHostPath: /etc/iscsi
-      iscsiDirHostPathType: Directory
-      extraEnv:
-        - name: ISCSIADM_HOST_STRATEGY
-          value: nsenter
-        - name: ISCSIADM_HOST_PATH
-          value: /usr/sbin/iscsiadm
+      localtimeHostPath: false
 
   controller:
     rbac:
       openshift:
         privileged: true
+    externalResizer:
+      enabled: true
+    externalSnapshotter:
+      enabled: true
     driver:
       image:
         repository: democraticcsi/democratic-csi
         tag: next
         pullPolicy: IfNotPresent
-    externalResizer:
-      enabled: true
-    externalSnapshotter:
-      enabled: true
 
   storageClasses:
-    - name: truenas-iscsi
+    - name: truenas-api-iscsi
       defaultClass: true
       reclaimPolicy: Delete
       volumeBindingMode: Immediate
       allowVolumeExpansion: true
       parameters:
         fsType: ext4
-        csi.storage.k8s.io/fstype: ext4
+
       mountOptions: []
       secrets:
         provisioner-secret:
