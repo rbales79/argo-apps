@@ -52,14 +52,6 @@ democratic-csi:
       openshift:
         privileged: true
     hostPID: true
-    driver:
-      iscsiDirHostPath: /etc/iscsi
-      iscsiDirHostPathType: Directory
-      extraEnv:
-        - name: ISCSIADM_HOST_STRATEGY
-          value: nsenter
-        - name: ISCSIADM_HOST_PATH
-          value: /usr/sbin/iscsiadm
 
   controller:
     rbac:
