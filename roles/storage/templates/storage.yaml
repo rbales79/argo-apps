@@ -39,6 +39,7 @@ spec:
         path: charts/{{ "{{" }} default "base" .group {{ "}}" }}/{{ "{{" }} .name {{ "}}" }}
         targetRevision: {{ .Values.spec.source.targetRevision }}
         helm:
+          skipCrds: true
           valuesObject:
             spec:
 {{ .Values.spec | toYaml | nindent 14 }}
