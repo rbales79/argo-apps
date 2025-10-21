@@ -2,5 +2,5 @@
 set -eux
 
 # initialize pre-commit
-git config --global --add safe.directory /workspaces
+git config --global --add safe.directory /workspaces/argo-apps
 # pre-commit install --overwrite
