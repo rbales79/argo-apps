@@ -9,7 +9,7 @@
     "--security-opt=label=disable"
   ],
   "mounts": [
-    "source=/home/rlt01/.kube,target=/root/.kube,type=bind,consistency=cached"
+    "source=/home/${localEnv:USER}/.kube,target=/root/.kube,type=bind,consistency=cached"
   ],
   "postAttachCommand": "/bin/bash .devcontainer/post-install.sh",
   "customizations": {
