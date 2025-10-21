@@ -1,0 +1,92 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+set: [pipefail]
+shopt: [globstar]
+
+includes:
+  git: .taskfiles/git
+  helm: .taskfiles/helm
+  kasten: .taskfiles/kasten
+  validate: .taskfiles/validate
+
+tasks:
+  default: task --list
+
+  clean:
+    desc: Clean task cache to force re-running of all cached tasks
+    summary: |
+      Removes the .task-cache directory which contains checksum files
+      used by Task to determine if tasks need to be re-run. Use this
+      to force all validation tasks to run again regardless of file changes.
+    silent: true
+    cmd: rm -rf .task-cache
+
+  new-chart:
+    desc: Scaffold a new chart by copying charts/media/sonarr
+    summary: |
+      Interactively prompts for chart details (name, image repo/tag, description,
+      port, icon, group, iconColor, etc.) and creates a new chart under charts/media/.
+      Also updates cluster/templates/media.yaml ApplicationSet with the new application.
+    silent: true
+    cmds:
+      - bash scripts/scaffold-new-chart.sh
+
+  vpa-report:
+    desc: Generate VPA Goldilocks resource recommendation report
+    summary: |
+      Fetches VPA (Vertical Pod Autoscaler) recommendations from the cluster
+      and generates a comprehensive report. Supports multiple output formats:
+      console (default), json, yaml, markdown, and kubectl patch commands.
+
+      Options:
+        FORMAT: Output format (console, json, yaml, markdown, kubectl) [default: console]
+        OUTPUT: Output file path (required for non-console formats)
+        NAMESPACE: Specific namespace to analyze (optional)
+
+      Examples:
+        task vpa-report                                    # Console output
+        task vpa-report FORMAT=markdown OUTPUT=report.md  # Markdown report
+        task vpa-report FORMAT=kubectl OUTPUT=patches.sh  # kubectl commands
+        task vpa-report NAMESPACE=media                    # Specific namespace
+    vars:
+      FORMAT: '{{.FORMAT | default "console"}}'
+      OUTPUT: '{{.OUTPUT}}'
+      NAMESPACE: '{{.NAMESPACE}}'
+    cmds:
+      - |
+        ARGS="--format {{.FORMAT}}"
+        {{if .OUTPUT}}ARGS="$ARGS --output {{.OUTPUT}}"{{end}}
+        {{if .NAMESPACE}}ARGS="$ARGS --namespace {{.NAMESPACE}}"{{end}}
+        python3 scripts/vpa-goldilocks-reporter.py $ARGS
+
+  update-error-pages:
+    desc: Update custom error pages from tarampampam/error-pages repository
+    summary: |
+      Downloads the latest custom error pages (404 and 503) from the
+      tarampampam/error-pages repository and generates Helm templates for all
+      available page templates. Updates the custom-error-pages chart with the
+      latest designs and template options.
+
+      The script will:
+      - Download from https://github.com/tarampampam/error-pages/zipball/gh-pages/
+      - Generate Helm templates for each available template (connection, cats, ghost, etc.)
+      - Convert HTML files to HTTP response format for OpenShift ingress
+      - Update values.yaml with available template options
+      - Generate comprehensive README.md with live preview links and template descriptions
+      - Only include templates that have both 404.html and 503.html files
+
+      Options:
+        DRY_RUN: Show what would be done without making changes [default: false]
+
+      Examples:
+        task update-error-pages                 # Update error pages
+        task update-error-pages DRY_RUN=true   # Preview changes without modifying files
+    vars:
+      DRY_RUN: '{{.DRY_RUN | default "false"}}'
+    cmds:
+      - |
+        ARGS=""
+        {{if eq .DRY_RUN "true"}}ARGS="$ARGS --dry-run"{{end}}
+        python3 scripts/update-error-pages.py $ARGS

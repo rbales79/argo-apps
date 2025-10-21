@@ -1,0 +1,11 @@
+.DS_Store
+Thumbs.db
+kubeconfig
+*.pub
+*.key
+.task
+.task-cache/
+/node_modules
+
+# Helm chart dependencies
+charts/*/*/charts/

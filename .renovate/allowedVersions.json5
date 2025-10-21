@@ -1,0 +1,25 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
+    {
+      matchManagers: ["helm", "helm-values"],
+      matchPackageNames: ["ghcr.io/linuxserver/calibre-web"],
+      allowedVersions: "<1",
+    },
+    {
+      matchManagers: ["helm", "helm-values"],
+      matchPackageNames: ["ghcr.io/home-operations/radarr"],
+      allowedVersions: "<6",
+    },
+    {
+      matchManagers: ["helm", "helm-values"],
+      matchPackageNames: ["postgres"],
+      allowedVersions: "<18",
+    },
+    {
+      matchDatasources: ["helm", "docker"],
+      matchPackageNames: ["postgres"],
+      allowedVersions: "<18",
+    },
+  ],
+}

@@ -1,0 +1,10 @@
+# Advanced Cluster Manager configuration
+namespace: open-cluster-management
+
+# ACM Operator configuration
+operator:
+  enabled: true
+  channel: "release-2.14"
+  installPlanApproval: Automatic
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace

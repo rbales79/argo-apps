@@ -1,0 +1,51 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: {{ .Values.cronjob.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          serviceAccountName: {{ .Release.Name }}
+          restartPolicy: Never
+          containers:
+            - name: cleaner
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command: ["/bin/bash","-c"]
+              args:
+                - |
+                  set -euo pipefail
+
+                  # Collect names where reason == SnapshotDeleteError
+                  mapfile -t A < <(oc get events -A \
+                    --field-selector reason=SnapshotDeleteError \
+                    -o go-template='{{range .items}}{{if eq .involvedObject.kind "VolumeSnapshotContent"}}{{.involvedObject.name}}{{"\n"}}{{end}}{{end}}' | sort -u)
+
+                  # Collect names where message contains "Failed to delete snapshot"
+                  mapfile -t B < <(oc get events -A \
+                    -o custom-columns=KIND:.involvedObject.kind,NAME:.involvedObject.name,MSG:.message --no-headers \
+                    | grep -i "Failed to delete snapshot" \
+                    | awk '$1=="VolumeSnapshotContent"{print $2}' | sort -u)
+
+                  # Merge and dedupe
+                  names=$(printf "%s\n" "${A[@]}" "${B[@]}" | sed '/^$/d' | sort -u)
+
+                  if [[ -z "${names}" ]]; then
+                    echo "No failed snapshot deletions found"
+                    exit 0
+                  fi
+
+                  echo "${names}" | while read -r vsc; do
+                    [[ -z "${vsc}" ]] && continue
+                    echo "Patching ${vsc}"
+                    oc patch volumesnapshotcontent "${vsc}" --type=json -p '[{"op":"remove","path":"/metadata/finalizers"}]' || true
+                  done

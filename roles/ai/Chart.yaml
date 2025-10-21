@@ -1,9 +1,0 @@
-apiVersion: v2
-description: A Helm chart deploying AI cluster components
-name: cluster
-version: 1.0.0
-kubeVersion: ">=1.31.0-0"
-
-maintainers:
-  - name: Roy Bales
-    email: rbales79@gmail.com

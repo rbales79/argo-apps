@@ -7,31 +7,31 @@ spec:
 
 config:
   cluster:
-    top_level_domain: example.com
-    name: cluster
+    top_level_domain: roybales.com
+    name: sno
     admin_email: YOUR_EMAIL
     timezone: YOUR_TIMEZONE
     storage:
       democratic-csi:
         httpConnection:
-          host: nas.roybales.com
-          port: 5000
+          host: truenas.roybales.com
+          port: 3260
         iscsi:
-          targetPortal: nas.roybales.com
+          targetPortal: truenas.roybales.com
       config:
-        storageClassName: synology-iscsi
+        storageClassName: truenas-iscsi
       media:
         nfs:
-          server: nas.roybales.com
-          path: /volume1/hub
+          server: truenas.roybales.com
+          path: /mnt/volume1/sno
 
   plex:
     network:
-      ip: 192.168.1.200
+      ip: 192.168.1.205
 
   emqx:
     network:
-      ip: 192.168.1.201
+      ip: 192.168.1.204
 
   certificates:
     letsencrypt:

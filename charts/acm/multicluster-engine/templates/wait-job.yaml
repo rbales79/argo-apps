@@ -1,0 +1,79 @@
+{{- if .Values.operator.enabled }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wait-for-mce-operator
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  template:
+    spec:
+      serviceAccountName: wait-for-mce-operator
+      restartPolicy: Never
+      containers:
+      - name: wait
+        image: registry.redhat.io/ubi8/ubi:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Waiting for MultiCluster Engine operator to be ready..."
+
+          # Wait for the operator deployment to be available
+          while ! oc get deployment multicluster-engine-operator -n {{ .Values.namespace }} >/dev/null 2>&1; do
+            echo "Waiting for operator deployment..."
+            sleep 10
+          done
+
+          # Wait for the deployment to be ready
+          oc wait --for=condition=Available deployment/multicluster-engine-operator -n {{ .Values.namespace }} --timeout=300s
+
+          # Wait for the webhook service to exist
+          while ! oc get service multicluster-engine-operator-webhook-service -n {{ .Values.namespace }} >/dev/null 2>&1; do
+            echo "Waiting for webhook service..."
+            sleep 5
+          done
+
+          echo "MultiCluster Engine operator is ready!"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: wait-for-mce-operator
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wait-for-mce-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: wait-for-mce-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: wait-for-mce-operator
+subjects:
+- kind: ServiceAccount
+  name: wait-for-mce-operator
+  namespace: {{ .Values.namespace }}
+{{- end }}

@@ -1,0 +1,306 @@
+{{- if eq (index .Values "custom-error-pages" "template") "shuffle" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: custom-error-code-pages
+  name: custom-error-code-pages
+  namespace: openshift-config
+data:
+  error-page-404.http: |
+    HTTP/1.0 404 File Not Found
+    Cache-Control: no-cache
+    Connection: close
+    Content-Type: text/html
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="robots" content="nofollow,noarchive,noindex">
+      <title>404 - Not Found</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="404: Not Found">
+      <meta name="description" content="The server can not find the requested page">
+      <meta property="og:title" content="404: Not Found">
+      <meta property="og:description" content="The server can not find the requested page">
+      <meta property="twitter:title" content="404: Not Found">
+      <meta property="twitter:description" content="The server can not find the requested page">
+      <style>
+        :root {
+          --color-primary: #eee;
+          --color-inverted: #222;
+        }
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --color-primary: #222;
+            --color-inverted: #aaa;
+          }
+        }
+        html, body {
+          margin: 0;
+          padding: 0;
+          min-height: 100%;
+          height: 100%;
+          width: 100%;
+          background-color: var(--color-primary);
+          color: var(--color-inverted);
+          font-family: monospace;
+          font-size: 16px;
+          word-break: keep-all;
+        }
+        @media screen and (min-width: 2000px) {
+          html, body {
+            font-size: 20px;
+          }
+        }
+        body {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        main {
+          display: flex;
+        }
+        article {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+        }
+        article #error_text h1 {
+          font-size: 2em;
+          font-weight: normal;
+          padding: 0;
+          margin: 0;
+        }
+      </style>
+    </head>
+    <body>
+    <main>
+      <article>
+        <div id="error_text">
+          <h1 class="source">404: <span>Not Found</span></h1>
+          <h1 class="target"></h1>
+        </div>
+      </article>
+    </main>
+    <script>
+      'use strict';
+      /**
+       * @param {HTMLElement} $el
+       */
+      const Shuffle = function ($el) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=+<>,./?[{()}]!@#$%^&*~`\|'.split('');
+        const $source = $el.querySelector('.source');
+        const $target = $el.querySelector('.target');
+        let cursor = 0;
+        /** @type {Number|undefined} */
+        let scrambleInterval;
+        /** @type {Number|undefined} */
+        let cursorDelayInterval;
+        /** @type {Number|undefined} */
+        let cursorInterval;
+        /**
+         * @param {Number} len
+         * @return {string}
+         */
+        const getRandomizedString = function (len) {
+          let s = '';
+          for (let i = 0; i < len; i++) {
+            s += chars[Math.floor(Math.random() * chars.length)];
+          }
+          return s;
+        };
+        this.start = function () {
+          $source.style.display = 'none';
+          $target.style.display = 'block';
+          scrambleInterval = window.setInterval(() => {
+            if (cursor <= $source.innerText.length) {
+              $target.innerText = $source.innerText.substring(0, cursor) + getRandomizedString($source.innerText.length - cursor);
+            }
+          }, 450 / 30);
+          cursorDelayInterval = window.setTimeout(() => {
+            cursorInterval = window.setInterval(() => {
+              if (cursor > $source.innerText.length - 1) {
+                this.stop();
+              }
+              cursor++;
+            }, 70);
+          }, 350);
+        };
+        this.stop = function () {
+          $source.style.display = 'block';
+          $target.style.display = 'none';
+          $target.innerText = '';
+          cursor = 0;
+          if (scrambleInterval !== undefined) {
+            window.clearInterval(scrambleInterval);
+            scrambleInterval = undefined;
+          }
+          if (cursorInterval !== undefined) {
+            window.clearInterval(cursorInterval);
+            cursorInterval = undefined;
+          }
+          if (cursorDelayInterval !== undefined) {
+            window.clearInterval(cursorDelayInterval);
+            cursorDelayInterval = undefined;
+          }
+        };
+      };
+      (new Shuffle(document.getElementById('error_text'))).start();
+      //
+    </script>
+    </body>
+    </html>
+
+  error-page-503.http: |
+    HTTP/1.0 503 Service Unavailable
+    Cache-Control: no-cache
+    Connection: close
+    Content-Type: text/html
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="robots" content="nofollow,noarchive,noindex">
+      <title>503 - Service Unavailable</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="refresh" content="30">
+      <meta name="title" content="503: Service Unavailable">
+      <meta name="description" content="The server is temporarily overloading or down">
+      <meta property="og:title" content="503: Service Unavailable">
+      <meta property="og:description" content="The server is temporarily overloading or down">
+      <meta property="twitter:title" content="503: Service Unavailable">
+      <meta property="twitter:description" content="The server is temporarily overloading or down">
+      <style>
+        :root {
+          --color-primary: #eee;
+          --color-inverted: #222;
+        }
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --color-primary: #222;
+            --color-inverted: #aaa;
+          }
+        }
+        html, body {
+          margin: 0;
+          padding: 0;
+          min-height: 100%;
+          height: 100%;
+          width: 100%;
+          background-color: var(--color-primary);
+          color: var(--color-inverted);
+          font-family: monospace;
+          font-size: 16px;
+          word-break: keep-all;
+        }
+        @media screen and (min-width: 2000px) {
+          html, body {
+            font-size: 20px;
+          }
+        }
+        body {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        main {
+          display: flex;
+        }
+        article {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+        }
+        article #error_text h1 {
+          font-size: 2em;
+          font-weight: normal;
+          padding: 0;
+          margin: 0;
+        }
+      </style>
+    </head>
+    <body>
+    <main>
+      <article>
+        <div id="error_text">
+          <h1 class="source">503: <span>Service Unavailable</span></h1>
+          <h1 class="target"></h1>
+        </div>
+      </article>
+    </main>
+    <script>
+      'use strict';
+      /**
+       * @param {HTMLElement} $el
+       */
+      const Shuffle = function ($el) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=+<>,./?[{()}]!@#$%^&*~`\|'.split('');
+        const $source = $el.querySelector('.source');
+        const $target = $el.querySelector('.target');
+        let cursor = 0;
+        /** @type {Number|undefined} */
+        let scrambleInterval;
+        /** @type {Number|undefined} */
+        let cursorDelayInterval;
+        /** @type {Number|undefined} */
+        let cursorInterval;
+        /**
+         * @param {Number} len
+         * @return {string}
+         */
+        const getRandomizedString = function (len) {
+          let s = '';
+          for (let i = 0; i < len; i++) {
+            s += chars[Math.floor(Math.random() * chars.length)];
+          }
+          return s;
+        };
+        this.start = function () {
+          $source.style.display = 'none';
+          $target.style.display = 'block';
+          scrambleInterval = window.setInterval(() => {
+            if (cursor <= $source.innerText.length) {
+              $target.innerText = $source.innerText.substring(0, cursor) + getRandomizedString($source.innerText.length - cursor);
+            }
+          }, 450 / 30);
+          cursorDelayInterval = window.setTimeout(() => {
+            cursorInterval = window.setInterval(() => {
+              if (cursor > $source.innerText.length - 1) {
+                this.stop();
+              }
+              cursor++;
+            }, 70);
+          }, 350);
+        };
+        this.stop = function () {
+          $source.style.display = 'block';
+          $target.style.display = 'none';
+          $target.innerText = '';
+          cursor = 0;
+          if (scrambleInterval !== undefined) {
+            window.clearInterval(scrambleInterval);
+            scrambleInterval = undefined;
+          }
+          if (cursorInterval !== undefined) {
+            window.clearInterval(cursorInterval);
+            cursorInterval = undefined;
+          }
+          if (cursorDelayInterval !== undefined) {
+            window.clearInterval(cursorDelayInterval);
+            cursorDelayInterval = undefined;
+          }
+        };
+      };
+      (new Shuffle(document.getElementById('error_text'))).start();
+      //
+    </script>
+    </body>
+    </html>
+
+{{- end }}

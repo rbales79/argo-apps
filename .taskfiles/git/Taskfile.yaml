@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  pre-commit:
+    desc: Run pre-commit on all files
+    silent: true
+    sources:
+      - "**/*"
+      - .pre-commit-config.yaml
+    generates:
+      - .task-cache/pre-commit.txt
+    method: checksum
+    cmd: pre-commit run --all-files && mkdir -p .task-cache && touch .task-cache/pre-commit.txt

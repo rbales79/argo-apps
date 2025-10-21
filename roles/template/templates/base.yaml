@@ -15,24 +15,25 @@ spec:
         - name: custom-error-pages
           group: infrastructure
           createNamespace: false
-        - name: emqx-operator
-          group: infrastructure
+        #- name: emqx-operator
+        #  group: infrastructure
 #        - name: external-secrets-operator
 #          group: security
-        - name: generic-device-plugin
-          group: infrastructure
-        - name: goldilocks
-          group: infrastructure
+        #- name: generic-device-plugin
+        #  group: infrastructure
+        #- name: goldilocks
+        #  group: infrastructure
 #        - name: gatus
 #          group: infrastructure
         - name: k10-kasten-operator
           group: infrastructure
+          createNamespace: false
         - name: keepalived-operator
           group: infrastructure
 #        - name: openshift-nfd
 #          group: infrastructure
-        - name: system-reservation
-          group: infrastructure
+        #- name: system-reservation
+        #  group: infrastructure
           createNamespace: false
   template:
     metadata:

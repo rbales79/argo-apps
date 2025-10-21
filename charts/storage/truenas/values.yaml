@@ -1,71 +1,36 @@
+# Cluster configuration
 cluster:
-  top_level_domain: roybales.com
   name: cluster
+  top_level_domain: roybales.com
   storage:
-    democratic-csi:
-      httpConnection:
+    truenas:
+      # TrueNAS server configuration
+      server:
         host: truenas.roybales.com
         port: 443
         protocol: https
         allowInsecure: true
+
+      # iSCSI configuration
       iscsi:
         targetPortal: "truenas.roybales.com:3260"
         iqnPrefix: "iqn.2005-10.org.freenas.ctl"
-      secretKeys:
-        apiKey: TRUENAS_API_KEY
-    config:
-      storageClassName: truenas-iscsi
 
-democratic-csi:
-  driver:
-    existingConfigSecret: democratic-csi-truenas-config
-    config:
-      driver: freenas-api-iscsi
-      httpConnection:
-        protocol: https
-        allowInsecure: true
+      # ZFS dataset paths
       zfs:
         datasetParentName: "volume1/iscsi/test/vols"
         detachedSnapshotsDatasetParentName: "volume1/iscsi/test/snaps"
         zvolBlocksize: "16K"
         zvolCompression: "lz4"
-        thinProvision: true
-      iscsi:
-        targetPortals: []
-        targetGroups:
-          - targetGroupPortalGroup: 1
-            targetGroupInitiatorGroup: 1
-            targetGroupAuthType: None
-            targetGroupAuthGroup: ""
-        extentUseThinProvisioning: true
-        extentDisablePhysicalBlocksize: true
-        extentBlocksize: 4096
-        extentRpm: "SSD"
-        discoveryCHAPAuth: false
-        chap: "disabled"
 
+      # Infisical secret key name
+      secretKeys:
+        apiKey: TRUENAS_API_KEY
+
+# Democratic CSI Driver configuration
+democratic-csi:
   csiDriver:
     name: "org.democratic-csi.truenas-iscsi"
-
-  node:
-    rbac:
-      openshift:
-        privileged: true
-    hostPID: true
-
-  controller:
-    rbac:
-      openshift:
-        privileged: true
-    driver:
-      image:
-        repository: democraticcsi/democratic-csi
-        tag: next
-        pullPolicy: IfNotPresent
-    externalResizer:
-      enabled: true
-    externalSnapshotter:
-      enabled: true
 
   storageClasses:
     - name: truenas-iscsi
@@ -91,3 +56,29 @@ democratic-csi:
       parameters:
       secrets:
         snapshotter-secret:
+
+  controller:
+    rbac:
+      openshift:
+        privileged: true
+    driver:
+      image:
+        repository: democraticcsi/democratic-csi
+        tag: next
+        pullPolicy: IfNotPresent
+    externalResizer:
+      enabled: true
+    externalSnapshotter:
+      enabled: true
+
+  node:
+    rbac:
+      openshift:
+        privileged: true
+
+  driver:
+    existingConfigSecret: democratic-csi-truenas-config
+    config:
+      # This section is overridden by the ExternalSecret
+      # Values here are just for reference/defaults
+      driver: freenas-api-iscsi

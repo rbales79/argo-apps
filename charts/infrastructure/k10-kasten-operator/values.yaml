@@ -1,0 +1,28 @@
+cluster:
+  top_level_domain: example.com
+  name: openshift
+  admin_email: admin@example.com
+  timezone: America/New_York
+  storage:
+    config:
+      storageClassName: truenas-iscsi
+    media:
+      nfs:
+        server: truenas.roybales.com
+        path: /mnt/volume1/media
+
+application:
+  name: Kasten K10
+  group: Infrastructure
+  icon: material-symbols:backup-outline
+  iconColor: ""
+  image: "https://docs.kasten.io/img/favicon_228x228px.png"
+  description: "Manages backups and disaster recovery"
+  location: 0
+  tags: admin
+
+kasten:
+  # Custom applications to exclude from Kasten K10 backups
+  # OpenShift system namespaces are automatically excluded via openshift-excluded-apps.yaml
+  excludedApps:
+  - object-lease-operator-system

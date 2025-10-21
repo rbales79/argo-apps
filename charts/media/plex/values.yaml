@@ -1,0 +1,40 @@
+cluster:
+  top_level_domain: example.com
+  name: openshift
+  admin_email: admin@example.com
+  timezone: America/New_York
+  storage:
+    config:
+      storageClassName: truenas-iscsi
+    media:
+      nfs:
+        server: truenas.roybales.com
+        path: /mnt/volume1/sno
+
+application:
+  name: Plex
+  group: Media
+  icon: cbi:plex
+  iconColor: "orange"
+  image: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Plex_logo_2022.svg"
+  description: "Manages your movie library"
+  port: 32400
+  location: 100
+
+plex:
+  network:
+    ip: 192.168.1.205
+
+pods:
+  main:
+    env:
+      VERSION: docker
+    image:
+      repository: lscr.io/linuxserver/plex
+      # renovate: datasource=docker depName=lscr.io/linuxserver/plex versioning=semver
+      tag: 1.42.2
+  imagemaid:
+    image:
+      repository: docker.io/kometateam/imagemaid
+      # renovate: datasource=docker depName=docker.io/kometateam/imagemaid versioning=semver
+      tag: v1.1.1

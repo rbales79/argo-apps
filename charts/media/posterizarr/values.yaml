@@ -1,0 +1,28 @@
+cluster:
+  top_level_domain: example.com
+  name: openshift
+  admin_email: admin@example.com
+  timezone: America/New_York
+  storage:
+    #config:
+    #  storageClassName: synology-iscsi
+    media:
+      nfs:
+        server: nas
+        path: /volume1/media
+
+pods:
+  init:
+    image:
+      repository: docker.io/mikefarah/yq
+      # renovate: datasource=docker depName=docker.io/mikefarah/yq versioning=semver
+      tag: 4.48.1
+  main:
+    image:
+      repository: ghcr.io/fscorrupt/posterizarr
+      # renovate: datasource=docker depName=ghcr.io/fscorrupt/posterizarr versioning=semver
+      tag: 1.9.97
+
+webhook:
+  enabled: true
+  port: 8080
