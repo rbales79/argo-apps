@@ -1,0 +1,16 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: external-secrets-operator
+  namespace: openshift-operators
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  channel: {{ .Values.subscription.channel | default "alpha" }}
+  installPlanApproval: {{ .Values.subscription.installPlanApproval | default "Automatic" }}
+  name: external-secrets-operator
+  source: {{ .Values.subscription.source | default "community-operators" }}
+  sourceNamespace: {{ .Values.subscription.sourceNamespace | default "openshift-marketplace" }}
+  {{- if .Values.subscription.startingCSV }}
+  startingCSV: {{ .Values.subscription.startingCSV }}
+  {{- end }}

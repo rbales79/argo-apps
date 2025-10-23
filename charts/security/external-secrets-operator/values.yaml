@@ -6,10 +6,17 @@ cluster:
   storage:
     #config:
     #  storageClassName: synology-iscsi
-    media:
-      nfs:
-        server: nas
-        path: /volume1/media
+    # media:
+    #  nfs:
+    #    server: nas
+    #    path: /volume1/cluster
+
+subscription:
+  channel: alpha
+  installPlanApproval: Automatic
+  source: community-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: external-secrets-operator.v0.11.0
 
 externalSecrets:
   secret: infisical-auth-secret
