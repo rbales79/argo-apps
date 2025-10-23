@@ -161,7 +161,7 @@ spec:
     helm:
       parameters:
         - name: config.cluster.admin_email
-          value: magnus@ullberg.us
+          value: rbales79@gmail.com
         - name: config.cluster.name
           value: openshift
         - name: config.cluster.timezone
