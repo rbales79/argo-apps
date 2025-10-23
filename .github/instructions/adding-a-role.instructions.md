@@ -10,12 +10,13 @@ When the user asks to "add a chart", "create a chart", "add a new chart", or men
 
 1. **Create Charts Directory Structure**
 
-   - Create a new directory for the role under `Charts/`
+   - Create a new directory for the charts under `Charts/`
    - Directory name should match the functional domain (e.g., `ai`, `media`, `development`, `monitoring`)
+   - If it's a new group, create a new role YAML file: `roles/template/[ROLE_NAME].yaml`
 
 2. **Create Chart.yaml**
 
-   - Inside the new role directory, create a `Chart.yaml` file with the following template:
+   - Inside the new chart directory, create a `Chart.yaml` file with the following template:
 
    ```yaml
    apiVersion: v2
@@ -31,18 +32,18 @@ When the user asks to "add a chart", "create a chart", "add a new chart", or men
 
 3. **Create Templates Directory**
 
-   - Create a `templates/` directory within the role directory
-   - This will contain YAML files for each application in this role
+   - Create a `templates/` directory within the chart directory
+   - This will contain YAML files for each application in this chart
 
 4. **Update README.md**
 
-   - Add information about the new role in the repository structure section
-   - Include a brief description of what applications this role manages
+   - Add information about the new chart in the repository structure section
+   - Include a brief description of what applications this chart manages
 
 5. **Update Cluster Values (Optional but Recommended)**
-   - Add the new role to the roles list in `/charts/role/values.yaml`
+   - Add the new chart to the charts list in `/charts/role/values.yaml`
 
-## Role Naming Conventions
+## Chart Naming Conventions
 
 - Use lowercase names
 - Use descriptive functional names (e.g., `ai`, `media`, `monitoring`, `development`)
