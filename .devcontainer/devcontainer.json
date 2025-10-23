@@ -3,19 +3,13 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "runArgs": [
-    "--privileged",
-    "--device=/dev/fuse",
-    "--security-opt=label=disable"
-  ],
   "mounts": [
-    {
-      "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.kube",
-      "target": "/root/.kube",
-      "type": "bind"
-    }
+    "source=/root/.kube,target=/root/.kube,type=bind,consistency=cached"
   ],
-  "postAttachCommand": "/bin/bash .devcontainer/post-install.sh",
+  "postAttachCommand": [
+    "/bin/bash",
+    ".devcontainer/post-install.sh"
+  ],
   "customizations": {
     "vscode": {
       "settings": {

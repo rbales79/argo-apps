@@ -133,5 +133,5 @@ complete -W "hub test sno" use-
 if [ -d "/root/.kube" ] && ls /root/.kube/kubeconfig-* >/dev/null 2>&1; then
     show-clusters
 else
-    echo "⚠️  Kubeconfig files not found. Make sure /home/rlt01/.kube is mounted."
+    echo "⚠️  Kubeconfig files not found. Please ensure they are placed in /root/.kube/"
 fi
