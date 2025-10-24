@@ -77,8 +77,8 @@ democratic-csi:
     rbac:
       openshift:
         privileged: true
-    driver:
-      localtimeHostPath: false
+    #driver:
+      #localtimeHostPath: false
 
   driver:
     existingConfigSecret: democratic-csi-truenas-config
