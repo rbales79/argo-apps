@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: {{ .Release.Name }}-synology
+spec:
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/syncPolicy
+  goTemplate: true
+  generators:
+    - list:
+        elements:
+        - name: synology
+          group: storage
+  template:
+    metadata:
+      name: 'cluster-synology'
+      namespace: "openshift-gitops"
+    spec:
+      ignoreDifferences:
+      - kind: Application
+        group: argoproj.io
+        jsonPointers:
+        - /spec/syncPolicy/automated
+      project: default
+      destination:
+        server: {{ .Values.spec.destination.server }}
+        namespace: 'democratic-csi'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace={{ "{{" }} if hasKey . "createNamespace" {{ "}}" }}{{ "{{" }} .createNamespace {{ "}}" }}{{ "{{" }} else {{ "}}" }}true{{ "{{" }} end {{ "}}" }}
+      source:
+        repoURL: {{ .Values.spec.source.repoURL }}
+        path: charts/storage/synology
+        targetRevision: {{ .Values.spec.source.targetRevision }}
+        helm:
+          valuesObject:
+            cluster:
+{{ .Values.cluster | toYaml | nindent 14 }}
+            # Do not override democratic-csi.storageClasses here
+            # The storage class configuration is fully defined in the chart's values.yaml
