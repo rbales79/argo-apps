@@ -1,5 +1,0 @@
-apiVersion: v2
-name: advanced-cluster-management
-description: Red Hat Advanced Cluster Manager for Kubernetes
-version: 0.1.0
-appVersion: "2.10"

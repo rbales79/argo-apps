@@ -1,5 +1,4 @@
-{{- if .Values.acm.enabled }}
-{{- $namespace := .Values.acm.namespace | default "multicluster-engine" }}
+{{- $namespace := .Values.acm.namespace }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -77,4 +76,3 @@ subjects:
 - kind: ServiceAccount
   name: wait-for-mce-operator
   namespace: {{ $namespace }}
-{{- end }}

@@ -1,0 +1,22 @@
+cluster:
+  top_level_domain: roybales.com
+  name: cluster
+  admin_email: rbales79@gmail.com
+  timezone: America/New_York
+
+acm:
+  namespace: multicluster-engine
+  channel: stable-2.5
+  installPlanApproval: Automatic
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+
+application:
+  name: Multicluster Engine
+  group: Infrastructure
+  icon: mdi:engine
+  iconColor: ""
+  image: ""
+  description: "Multicluster engine for OpenShift"
+  location: 0
+  tags: admin

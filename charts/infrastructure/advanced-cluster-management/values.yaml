@@ -1,0 +1,21 @@
+cluster:
+  top_level_domain: roybales.com
+  name: cluster
+  admin_email: rbales79@gmail.com
+  timezone: America/New_York
+
+acm:
+  channel: release-2.10
+  installPlanApproval: Automatic
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+
+application:
+  name: Advanced Cluster Management
+  group: Infrastructure
+  icon: mdi:cluster
+  iconColor: ""
+  image: ""
+  description: "Multi-cluster management for OpenShift"
+  location: 0
+  tags: admin
