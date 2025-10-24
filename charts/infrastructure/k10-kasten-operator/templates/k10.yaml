@@ -3,6 +3,8 @@ kind: K10
 metadata:
   name: k10
   namespace: kasten-io
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
 spec:
   auth:
     basicAuth:
@@ -11,7 +13,11 @@ spec:
       enabled: true
   global:
     persistence:
+{{- if .Values.kasten.storageClass }}
+      storageClass: {{ .Values.kasten.storageClass }}
+{{- else if .Values.cluster.storage.config.storageClassName }}
       storageClass: {{ .Values.cluster.storage.config.storageClassName }}
+{{- end }}
   metering:
     mode: airgap
   route:
