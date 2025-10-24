@@ -5,7 +5,7 @@ metadata:
   labels:
     operators.coreos.com/keepalived-operator.keepalived-operator: ''
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "0"
   name: keepalived-operator
 spec:
   channel: alpha

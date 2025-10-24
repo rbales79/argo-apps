@@ -5,7 +5,7 @@ metadata:
   generateName: keepalived-operator-
   annotations:
     olm.providedAPIs: KeepalivedGroup.v1alpha1.redhatcop.redhat.io
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "0"
   name: keepalived-operator
 spec:
   upgradeStrategy: Default

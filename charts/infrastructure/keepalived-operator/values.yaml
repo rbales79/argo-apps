@@ -1,15 +1,15 @@
 cluster:
-  top_level_domain: example.com
+  top_level_domain: roybales.com
   name: cluster
-  admin_email: admin@example.com
+  admin_email: rbales79@gmail.com
   timezone: America/New_York
   storage:
     #config:
     #  storageClassName: synology-iscsi
     media:
       nfs:
-        server: nas
-        path: /volume1/media
+        server: truenas.roybales.com
+        path: /mnt/volume1/test
 
 network:
   lan:

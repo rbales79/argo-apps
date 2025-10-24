@@ -5,7 +5,7 @@ apiVersion: redhatcop.redhat.io/v1alpha1
 metadata:
   name: {{ $networkName }}
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "10"
 spec:
   image: registry.redhat.io/openshift4/ose-keepalived-ipfailover
   interface: br-ex
