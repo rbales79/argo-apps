@@ -4,6 +4,8 @@ apiVersion: config.kio.kasten.io/v1alpha1
 metadata:
   name: remove-storage-class
   namespace: kasten-io
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
 spec:
   comment: |
     Remove the storageClass.
