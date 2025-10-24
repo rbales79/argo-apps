@@ -1,13 +1,15 @@
 ---
-apiVersion: operators.coreos.com/v1
-kind: OperatorGroup
-metadata:
-  generateName: cert-manager-operator-
-  name: cert-manager-operator
-  namespace: cert-manager-operator
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  targetNamespaces:
-    - cert-manager-operator
-  upgradeStrategy: Default
+# NOTE: openshift-operators namespace already has a global OperatorGroup
+# This manifest is not needed when installing to openshift-operators
+# apiVersion: operators.coreos.com/v1
+# kind: OperatorGroup
+# metadata:
+#   generateName: cert-manager-operator-
+#   name: cert-manager-operator
+#   namespace: openshift-operators
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "2"
+# spec:
+#   targetNamespaces:
+#     - openshift-operators
+#   upgradeStrategy: Default

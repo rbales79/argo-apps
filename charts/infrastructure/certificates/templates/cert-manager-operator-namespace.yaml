@@ -1,7 +1,9 @@
 ---
-kind: Namespace
-apiVersion: v1
-metadata:
-  name: cert-manager-operator
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
+# NOTE: openshift-operators is a default namespace in OpenShift
+# This manifest is not needed but kept for documentation purposes
+# kind: Namespace
+# apiVersion: v1
+# metadata:
+#   name: openshift-operators
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "0"
