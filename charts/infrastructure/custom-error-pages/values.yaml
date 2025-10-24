@@ -1,5 +1,5 @@
 cluster:
-  top_level_domain: example.com
+  top_level_domain: roybales.com
   name: cluster
   storage:
     #config:

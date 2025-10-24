@@ -10,7 +10,7 @@ config:
     top_level_domain: roybales.com
     name: sno
     admin_email: YOUR_EMAIL
-    timezone: YOUR_TIMEZONE
+    timezone: America/New_York
     storage:
       democratic-csi:
         httpConnection:

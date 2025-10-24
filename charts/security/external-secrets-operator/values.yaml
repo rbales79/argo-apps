@@ -1,7 +1,7 @@
 cluster:
-  top_level_domain: example.com
-  name: openshift
-  admin_email: admin@example.com
+  top_level_domain: roybales.com
+  name: cluster
+  admin_email: rbales79@gmail.com
   timezone: America/New_York
   storage:
     #config:
