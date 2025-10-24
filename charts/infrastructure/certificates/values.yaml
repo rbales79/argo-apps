@@ -1,9 +1,16 @@
 cluster:
   top_level_domain: roybales.com
   name: sno
-  admin_email: YOUR_EMAIL
-  timezone: YOUR_TIMEZONE
+  admin_email: rbales79@gmail.com
+  timezone: America/New_York
 
 certificates:
   letsencrypt:
     issuer: production
+
+  # Cloudflare DNS01 challenge configuration
+  cloudflare:
+    # Secret name containing the Cloudflare API token
+    secret_name: cloudflare-api-token
+    # Key within the secret containing the API token
+    secret_key: api-token
