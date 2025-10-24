@@ -12,6 +12,8 @@ spec:
     email: {{ .Values.cluster.admin_email }}
     privateKeySecretRef:
       name: letsencrypt-staging
+    # Use Cloudflare's public DNS servers for DNS-01 challenge validation
+    # This ensures cert-manager queries authoritative nameservers
     solvers:
     - selector:
         dnsZones:
@@ -20,11 +22,5 @@ spec:
         cnameStrategy: Follow
         cloudflare:
           apiTokenSecretRef:
-            name: cloudflare-api-token
-            key: api-token
-        # Use Cloudflare's public DNS servers for DNS-01 challenge validation
-        # This ensures cert-manager queries authoritative nameservers
-        recursiveNameservers:
-          - "1.1.1.1:53"
-          - "1.0.0.1:53"
-        recursiveNameserversOnly: true
+            name: {{ .Values.certificates.cloudflare.secret_name }}
+            key: {{ .Values.certificates.cloudflare.secret_key }}
