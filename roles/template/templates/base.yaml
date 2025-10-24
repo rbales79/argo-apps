@@ -15,16 +15,16 @@ spec:
         - name: custom-error-pages
           group: infrastructure
           createNamespace: false
-        #- name: emqx-operator
-        #  group: infrastructure
-#        - name: external-secrets-operator
-#          group: security
+        - name: emqx-operator
+          group: infrastructure
+        - name: external-secrets-operator
+          group: security
         #- name: generic-device-plugin
         #  group: infrastructure
-        #- name: goldilocks
-        #  group: infrastructure
-#        - name: gatus
-#          group: infrastructure
+        - name: goldilocks
+          group: infrastructure
+        - name: gatus
+          group: infrastructure
         - name: k10-kasten-operator
           group: infrastructure
           createNamespace: false
@@ -34,7 +34,7 @@ spec:
 #          group: infrastructure
         #- name: system-reservation
         #  group: infrastructure
-          createNamespace: false
+        #  createNamespace: false
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'
