@@ -5,6 +5,10 @@ spec:
     repoURL: YOUR_REPO_URL
     targetRevision: HEAD
 
+# Advanced Cluster Management (ACM) configuration
+acm:
+  enabled: false
+
 config:
   cluster:
     top_level_domain: roybales.com

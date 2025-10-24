@@ -1,4 +1,4 @@
-{{- if .Values.operator.enabled }}
+{{- if .Values.acm.enabled }}
 ---
 apiVersion: v1
 kind: Namespace
@@ -22,9 +22,9 @@ metadata:
   name: advanced-cluster-management
   namespace: open-cluster-management
 spec:
-  channel: {{ .Values.operator.channel }}
-  installPlanApproval: {{ .Values.operator.installPlanApproval }}
+  channel: {{ .Values.acm.channel | default "release-2.10" }}
+  installPlanApproval: {{ .Values.acm.installPlanApproval | default "Automatic" }}
   name: advanced-cluster-management
-  source: {{ .Values.operator.source }}
-  sourceNamespace: {{ .Values.operator.sourceNamespace }}
+  source: {{ .Values.acm.source | default "redhat-operators" }}
+  sourceNamespace: {{ .Values.acm.sourceNamespace | default "openshift-marketplace" }}
 {{- end }}

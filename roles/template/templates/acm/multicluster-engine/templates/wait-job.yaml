@@ -1,10 +1,11 @@
-{{- if .Values.operator.enabled }}
+{{- if .Values.acm.enabled }}
+{{- $namespace := .Values.acm.namespace | default "multicluster-engine" }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: wait-for-mce-operator
-  namespace: {{ .Values.namespace }}
+  namespace: {{ $namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "3"
     argocd.argoproj.io/hook: Sync
@@ -24,16 +25,16 @@ spec:
           echo "Waiting for MultiCluster Engine operator to be ready..."
 
           # Wait for the operator deployment to be available
-          while ! oc get deployment multicluster-engine-operator -n {{ .Values.namespace }} >/dev/null 2>&1; do
+          while ! oc get deployment multicluster-engine-operator -n {{ $namespace }} >/dev/null 2>&1; do
             echo "Waiting for operator deployment..."
             sleep 10
           done
 
           # Wait for the deployment to be ready
-          oc wait --for=condition=Available deployment/multicluster-engine-operator -n {{ .Values.namespace }} --timeout=300s
+          oc wait --for=condition=Available deployment/multicluster-engine-operator -n {{ $namespace }} --timeout=300s
 
           # Wait for the webhook service to exist
-          while ! oc get service multicluster-engine-operator-webhook-service -n {{ .Values.namespace }} >/dev/null 2>&1; do
+          while ! oc get service multicluster-engine-operator-webhook-service -n {{ $namespace }} >/dev/null 2>&1; do
             echo "Waiting for webhook service..."
             sleep 5
           done
@@ -44,7 +45,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: wait-for-mce-operator
-  namespace: {{ .Values.namespace }}
+  namespace: {{ $namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 ---
@@ -75,5 +76,5 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: wait-for-mce-operator
-  namespace: {{ .Values.namespace }}
+  namespace: {{ $namespace }}
 {{- end }}
