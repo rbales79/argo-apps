@@ -34,6 +34,10 @@ democratic-csi:
     rbac:
       openshift:
         privileged: true
+    externalResizer:
+      enabled: true
+    externalSnapshotter:
+      enabled: true
 
   storageClasses:
     - name: synology-iscsi
@@ -43,7 +47,6 @@ democratic-csi:
       allowVolumeExpansion: true
       parameters:
         fsType: ext4
-
       mountOptions: []
       secrets:
         provisioner-secret:
@@ -60,10 +63,3 @@ democratic-csi:
       parameters:
       secrets:
         snapshotter-secret:
-
-  controller:
-    externalResizer:
-      enabled: true
-
-    externalSnapshotter:
-      enabled: true
