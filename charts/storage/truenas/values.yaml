@@ -68,7 +68,9 @@ democratic-csi:
         pullPolicy: IfNotPresent
     externalAttacher:
       enabled: true
-      image: registry.k8s.io/sig-storage/csi-attacher:v4.6.1
+      image:
+        registry: registry.k8s.io/sig-storage/csi-attacher
+        tag: v4.6.1
     externalResizer:
       enabled: true
     externalSnapshotter:
