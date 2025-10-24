@@ -21,6 +21,11 @@ spec:
 {{- end }}
   metering:
     mode: airgap
+  prometheus:
+    server:
+      enabled: false
+  grafana:
+    enabled: false
   route:
     enabled: true
     # host: k10.apps.{{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}
