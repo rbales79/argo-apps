@@ -4,8 +4,8 @@ cluster:
   admin_email: rbales79@gmail.com
   timezone: America/New_York
   storage:
-    config:
-      storageClassName: truenas-iscsi
+    # config:
+      # storageClassName: truenas-iscsi
     media:
       nfs:
         server: truenas.roybales.com
