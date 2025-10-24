@@ -17,7 +17,14 @@ spec:
         dnsZones:
           - {{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}
       dns01:
+        cnameStrategy: Follow
         cloudflare:
           apiTokenSecretRef:
             name: cloudflare-api-token
             key: api-token
+        # Use Cloudflare's public DNS servers for DNS-01 challenge validation
+        # This ensures cert-manager queries authoritative nameservers
+        recursiveNameservers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
+        recursiveNameserversOnly: true

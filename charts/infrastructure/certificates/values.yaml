@@ -8,6 +8,17 @@ certificates:
   letsencrypt:
     issuer: production
 
+  # DNS configuration for DNS-01 challenge validation
+  dns:
+    # Recursive nameservers for DNS-01 challenge validation
+    # Using Cloudflare's public DNS ensures cert-manager queries
+    # the authoritative nameservers where challenges are created
+    recursive_nameservers:
+      - "1.1.1.1:53"
+      - "1.0.0.1:53"
+    # Only use the specified recursive nameservers (don't fall back to cluster DNS)
+    recursive_nameservers_only: true
+
   # Cloudflare DNS01 challenge configuration
   cloudflare:
     # Secret name containing the Cloudflare API token
