@@ -67,7 +67,7 @@ democratic-csi:
         tag: next@sha256:6b758d6faf96f0e96d4b8ac0e240fc290c7bace23c20d78a3eb93781652cb1f1
         pullPolicy: IfNotPresent
     externalAttacher:
-      enabled: false
+      enabled: true
     externalResizer:
       enabled: true
     externalSnapshotter:
