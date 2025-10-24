@@ -2,11 +2,11 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
+  name: keepalived-operator
   labels:
     operators.coreos.com/keepalived-operator.keepalived-operator: ''
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-  name: keepalived-operator
 spec:
   channel: alpha
   installPlanApproval: Automatic
