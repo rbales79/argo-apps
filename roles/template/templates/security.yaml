@@ -2,6 +2,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: {{ .Release.Name }}-security
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   ignoreApplicationDifferences:
     - jsonPointers:
