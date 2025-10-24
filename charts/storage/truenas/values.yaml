@@ -18,8 +18,8 @@ cluster:
 
       # ZFS dataset paths
       zfs:
-        datasetParentName: "volume1/iscsi/test/vols"
-        detachedSnapshotsDatasetParentName: "volume1/iscsi/test/snaps"
+        datasetParentName: "volume1/test/vols"
+        detachedSnapshotsDatasetParentName: "volume1/test/snaps"
         zvolBlocksize: "16K"
         zvolCompression: "lz4"
 
