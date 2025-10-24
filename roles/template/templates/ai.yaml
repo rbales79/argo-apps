@@ -14,8 +14,8 @@ spec:
         elements:
           - name: litellm
             group: ai
-          - name: n8n
-            group: ai
+          #- name: n8n
+          #  group: ai
           #- name: ollama
           #  group: ai
           - name: open-webui
