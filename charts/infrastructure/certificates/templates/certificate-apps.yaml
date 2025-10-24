@@ -5,7 +5,7 @@ metadata:
   name: apps-wildcard-cert-tls
   namespace: openshift-ingress
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "6"
 spec:
   secretName: apps-wildcard-cert-tls
   issuerRef:

@@ -5,7 +5,7 @@ kind: ClusterIssuer
 metadata:
   name: letsencrypt-production
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
