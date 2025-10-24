@@ -16,8 +16,8 @@ spec:
         - /bin/sh
         - -c
         - |
-          echo "Waiting 2 minutes after storage deployment..."
-          sleep 120
+          echo "Waiting 1 minute after storage deployment..."
+          sleep 60
           echo "Delay complete, proceeding to application deployment"
       restartPolicy: Never
       serviceAccountName: default
