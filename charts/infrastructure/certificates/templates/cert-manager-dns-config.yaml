@@ -7,7 +7,7 @@ metadata:
   name: cert-manager-dns-config
   namespace: cert-manager
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "1"
 data:
   # Use Cloudflare's DNS servers for DNS-01 challenge validation
   # This ensures cert-manager queries the authoritative DNS servers
