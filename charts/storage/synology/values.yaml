@@ -38,6 +38,8 @@ democratic-csi:
       enabled: true
     externalSnapshotter:
       enabled: true
+    externalAttacher:
+      enabled: false
 
   storageClasses:
     - name: synology-iscsi

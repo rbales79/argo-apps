@@ -1,4 +1,0 @@
-{{- include "democratic-csi-synology.validateStorageClasses" . -}}
-{{- if not (index .Values "democratic-csi" "storageClasses" 0 "name") -}}
-{{- fail "Storage class name is required but was not provided. This usually happens when Helm parameters partially override the storageClasses array. Please ensure the full storage class configuration is provided." -}}
-{{- end -}}
