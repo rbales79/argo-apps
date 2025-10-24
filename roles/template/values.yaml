@@ -2,14 +2,14 @@ spec:
   destination:
     server: https://kubernetes.default.svc
   source:
-    repoURL: YOUR_REPO_URL
+    repoURL: https://github.com/rbales79/argo-apps
     targetRevision: HEAD
 
 config:
   cluster:
     top_level_domain: roybales.com
     name: sno
-    admin_email: YOUR_EMAIL
+    admin_email: rbales79@gmail.com
     timezone: America/New_York
     storage:
       democratic-csi:
