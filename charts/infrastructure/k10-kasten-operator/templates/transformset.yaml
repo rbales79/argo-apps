@@ -5,7 +5,8 @@ metadata:
   name: remove-storage-class
   namespace: kasten-io
   annotations:
-    argocd.argoproj.io/sync-wave: "20"
+    argocd.argoproj.io/sync-wave: "50"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true,Retry=true
 spec:
   comment: |
     Remove the storageClass.
