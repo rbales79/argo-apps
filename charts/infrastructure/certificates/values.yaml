@@ -1,10 +1,9 @@
-config:
-  cluster:
-    top_level_domain: roybales.com
-    name: sno
-    admin_email: YOUR_EMAIL
-    timezone: YOUR_TIMEZONE
+cluster:
+  top_level_domain: roybales.com
+  name: sno
+  admin_email: YOUR_EMAIL
+  timezone: YOUR_TIMEZONE
 
-  certificates:
-    letsencrypt:
-      issuer: production
+certificates:
+  letsencrypt:
+    issuer: production
