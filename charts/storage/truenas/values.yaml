@@ -10,11 +10,24 @@ cluster:
         port: 443
         protocol: https
         allowInsecure: true
+      # SSH connection for democratic-csi freenas-ssh-iscsi driver
+      sshConnection:
+        host: truenas.roybales.com
+        port: 22
+        username: root
+        password: ""
+        privateKey: "TRUENAS_SSH_KEY"
+
+      # Infisical secret key name (API key, not used for SSH)
+      # secretKeys:
+        apiKey: TRUENAS_API_KEY
 
       # iSCSI configuration
       iscsi:
         targetPortal: "truenas.roybales.com:3260"
-        iqnPrefix: "iqn.2005-10.org.freenas.ctl"
+        iqnPrefix: "test-cluster"  # Override this per cluster (e.g., "test", "sno", "prod")
+        namePrefix: "test-"
+        nameSuffix: ""
 
       # ZFS dataset paths
       zfs:
@@ -88,4 +101,5 @@ democratic-csi:
     config:
       # This section is overridden by the ExternalSecret
       # Values here are just for reference/defaults
-      driver: freenas-api-iscsi
+      # driver: freenas-api-iscsi
+      driver: freenas-iscsi
