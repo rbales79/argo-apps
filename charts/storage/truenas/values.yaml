@@ -110,4 +110,4 @@ democratic-csi:
       # This section is overridden by the ExternalSecret
       # Values here are just for reference/defaults
       # driver: freenas-api-iscsi
-      driver: freenas-iscsi
+      driver: freenas-api-iscsi
