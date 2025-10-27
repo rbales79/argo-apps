@@ -21,6 +21,7 @@ cluster:
       # Infisical secret key name (API key, not used for SSH)
       # secretKeys:
         apiKey: TRUENAS_API_KEY
+        sshPassword: TRUENAS_SSH_PASSWORD
 
       # iSCSI configuration
       iscsi:
@@ -33,8 +34,14 @@ cluster:
       zfs:
         datasetParentName: "volume1/test/vols"
         detachedSnapshotsDatasetParentName: "volume1/test/snaps"
-        zvolBlocksize: "16K"
-        zvolCompression: "lz4"
+        #zvolBlocksize: "16K"
+        #zvolCompression: "lz4"
+        datasetProperties: {}
+        zvolProperties:
+          volblocksize: "16K"
+          compression: "lz4"
+          dedup: "off"
+          sync: "standard"
 
       # Infisical secret key name
       secretKeys:
