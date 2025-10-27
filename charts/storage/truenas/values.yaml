@@ -14,7 +14,7 @@ cluster:
       # iSCSI configuration
       iscsi:
         targetPortal: "truenas.roybales.com:3260"
-        iqnPrefix: "cluster"  # Override this per cluster (e.g., "test", "sno", "prod")
+        iqnPrefix: "test"  # Override this per cluster (e.g., "test", "sno", "prod")
 
       # ZFS dataset paths
       zfs:
