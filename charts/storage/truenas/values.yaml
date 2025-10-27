@@ -16,7 +16,6 @@ cluster:
         port: 22
         username: admin
         password: TRUENAS_SSH_KEY
-        privateKey: ""
 
       # Infisical secret key name (API key, not used for SSH)
       # secretKeys:
@@ -110,4 +109,4 @@ democratic-csi:
       # This section is overridden by the ExternalSecret
       # Values here are just for reference/defaults
       # driver: freenas-api-iscsi
-      driver: freenas-api-iscsi
+      driver: freenas-iscsi
