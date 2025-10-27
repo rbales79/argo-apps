@@ -9,6 +9,8 @@ cluster:
         host: truenas.roybales.com
         port: 443
         protocol: https
+        username: admin
+        password: TRUENAS_PASSWORD
         allowInsecure: true
       # SSH connection for democratic-csi freenas-ssh-iscsi driver
       sshConnection:
