@@ -14,8 +14,6 @@ cluster:
       # iSCSI configuration
       iscsi:
         targetPortal: "truenas.roybales.com:3260"
-        iqnPrefix: "test-cluster"  # Override this per cluster (e.g., "test", "sno", "prod")
-        namePrefix: "{{ .Values.cluster.name }}-"
 
       # ZFS dataset paths
       zfs:
