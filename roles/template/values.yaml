@@ -12,6 +12,9 @@ config:
     admin_email: rbales79@gmail.com
     timezone: America/New_York
     storage:
+      truenas:
+        datasetParentName: "volume1/test/vols"
+        detachedSnapshotsDatasetParentName: "volume1/test/snaps"
       democratic-csi:
         httpConnection:
           host: truenas.roybales.com
@@ -23,7 +26,7 @@ config:
       media:
         nfs:
           server: truenas.roybales.com
-          path: /mnt/volume1/test-cluster
+          path: /mnt/volume1/media
 
   plex:
     network:

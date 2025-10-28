@@ -53,10 +53,10 @@ cluster:
         # total volume name (zvol/<datasetParentName>/<pvc name>) length cannot exceed 63 chars
         # standard volume naming overhead is 46 chars
         # datasetParentName should therefore be 17 chars or less when using TrueNAS 12 or below
-        datasetParentName: "volume1/test/vols"
+        datasetParentName: "volume1/iscsi/test/vols"
         # do NOT make datasetParentName and detachedSnapshotsDatasetParentName overlap
         # do NOT comment this option out even if you don't plan to use snapshots
-        detachedSnapshotsDatasetParentName: "volume1/test/snaps"
+        detachedSnapshotsDatasetParentName: "volume1/iscsi/test/snaps"
         # "" (inherit), lz4, gzip-9, etc
         zvolCompression: "lz4"
         # "" (inherit), on, off, verify
