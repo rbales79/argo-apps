@@ -172,7 +172,7 @@ persistence:
   # Application data volume
   data:
     enabled: true
-    storageClass: "{{ .Values.cluster.storage.config.storageClassName }}"
+    storageClass: truenas-iscsi
     accessMode: ReadWriteOnce
     size: 50Gi
     mountPath: /var/lib/terraform-enterprise
@@ -180,7 +180,7 @@ persistence:
   # PostgreSQL data volume
   postgres:
     enabled: true
-    storageClass: "{{ .Values.cluster.storage.config.storageClassName }}"
+    storageClass: truenas-iscsi
     accessMode: ReadWriteOnce
     size: 20Gi
     mountPath: /var/lib/postgresql/data
@@ -188,7 +188,7 @@ persistence:
   # Configuration volume
   config:
     enabled: true
-    storageClass: "{{ .Values.cluster.storage.config.storageClassName }}"
+    storageClass: truenas-iscsi
     accessMode: ReadWriteOnce
     size: 1Gi
     mountPath: /etc/terraform-enterprise

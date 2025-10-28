@@ -24,6 +24,21 @@ else
     echo "✅ OpenShift CLI already installed: $(oc version --client | head -1)"
 fi
 
+# Install Helm if not already present
+if ! command -v helm &> /dev/null; then
+    echo "📥 Downloading Helm..."
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 -o /tmp/get_helm.sh
+
+    echo "📦 Installing Helm..."
+    chmod +x /tmp/get_helm.sh
+    /tmp/get_helm.sh
+    rm -f /tmp/get_helm.sh
+
+    echo "✅ Helm installed: $(helm version --short)"
+else
+    echo "✅ Helm already installed: $(helm version --short)"
+fi
+
 # Set up cluster management functions
 echo "⚙️  Setting up cluster management functions..."
 
