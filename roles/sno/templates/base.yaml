@@ -21,10 +21,10 @@ spec:
           group: infrastructure
         #- name: generic-device-plugin
         #  group: infrastructure
-        - name: goldilocks
-          group: infrastructure
-        - name: gatus
-          group: infrastructure
+        #- name: goldilocks
+        #  group: infrastructure
+        #- name: gatus
+        #  group: infrastructure
         - name: k10-kasten-operator
           group: infrastructure
           createNamespace: false

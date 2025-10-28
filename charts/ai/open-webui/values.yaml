@@ -3,7 +3,6 @@ cluster:
   name: cluster
   admin_email: rbales79@gmail.com
   timezone: America/New_York
-
 #  storage:
 #    config:
 #      storageClassName: synology-iscsi
