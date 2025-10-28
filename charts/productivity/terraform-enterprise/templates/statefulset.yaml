@@ -34,9 +34,6 @@ spec:
       securityContext:
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
         supplementalGroups:
           - 1000
       initContainers:
