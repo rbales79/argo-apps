@@ -23,6 +23,7 @@ cluster:
       # secretKeys:
         apiKey: TRUENAS_API_KEY
         sshPassword: TRUENAS_SSH_PASSWORD
+        truenasPassword: TRUENAS_SSH_PASSWORD
 
       # iSCSI configuration
       iscsi:
@@ -48,6 +49,7 @@ cluster:
       secretKeys:
         apiKey: TRUENAS_API_KEY
         sshPassword: TRUENAS_SSH_PASSWORD
+        truenasPassword: TRUENAS_PASSWORD
 
 # Democratic CSI Driver configuration
 democratic-csi:
