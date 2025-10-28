@@ -95,7 +95,7 @@ terraformEnterprise:
 pods:
   main:
     image:
-      repository: hashicorp/terraform-enterprise
+      repository: images.releases.hashicorp.com/hashicorp/terraform-enterprise
       # renovate: datasource=docker depName=hashicorp/terraform-enterprise
       tag: "v202410-1"
       pullPolicy: IfNotPresent
