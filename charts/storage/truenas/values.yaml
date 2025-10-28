@@ -36,8 +36,8 @@ cluster:
       zfs:
         datasetParentName: "volume1/test/vols"
         detachedSnapshotsDatasetParentName: "volume1/test/snaps"
-        #zvolBlocksize: "16K"
-        #zvolCompression: "lz4"
+        zvolBlocksize: "16K"
+        zvolCompression: "lz4"
         datasetProperties: {}
         zvolProperties:
           volblocksize: "16K"
