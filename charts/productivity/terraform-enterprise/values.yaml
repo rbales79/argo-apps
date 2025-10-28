@@ -117,13 +117,13 @@ pods:
       - name: TFE_ENCRYPTION_PASSWORD
         valueFrom:
           secretKeyRef:
-            name: "{{ .Values.terraformEnterprise.encryptionPassword.secretName }}"
-            key: "{{ .Values.terraformEnterprise.encryptionPassword.secretKey }}"
+            name: terraform-enterprise-secrets
+            key: encryption-password
       - name: TFE_LICENSE
         valueFrom:
           secretKeyRef:
-            name: "{{ .Values.terraformEnterprise.license.secretName }}"
-            key: "{{ .Values.terraformEnterprise.license.secretKey }}"
+            name: terraform-enterprise-license
+            key: license
       - name: TFE_TLS_ENFORCE
         value: "{{ .Values.terraformEnterprise.tls.enabled }}"
       - name: TFE_DATABASE_HOST
@@ -135,8 +135,8 @@ pods:
       - name: TFE_DATABASE_PASSWORD
         valueFrom:
           secretKeyRef:
-            name: "{{ .Values.terraformEnterprise.database.passwordSecret.name }}"
-            key: "{{ .Values.terraformEnterprise.database.passwordSecret.key }}"
+            name: terraform-enterprise-database
+            key: password
 
   # PostgreSQL sidecar (when not using external database)
   postgres:
@@ -162,8 +162,8 @@ pods:
       - name: POSTGRES_PASSWORD
         valueFrom:
           secretKeyRef:
-            name: "{{ .Values.terraformEnterprise.database.passwordSecret.name }}"
-            key: "{{ .Values.terraformEnterprise.database.passwordSecret.key }}"
+            name: terraform-enterprise-database
+            key: password
       - name: PGDATA
         value: /var/lib/postgresql/data/pgdata
 
