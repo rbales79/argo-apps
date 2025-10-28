@@ -219,7 +219,7 @@ route:
 
 # Gatus monitoring
 gatus:
-  enabled: true
+  enabled: false
   interval: 5m
   conditions:
     - "[STATUS] == 200"
