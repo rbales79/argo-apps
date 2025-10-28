@@ -42,7 +42,7 @@ cluster:
           paths:
             zfs: /usr/local/sbin/zfs
             zpool: /usr/local/sbin/zpool
-            sudo: /usr/local/bin/sudo
+            #sudo: /usr/local/bin/sudo
             chroot: /usr/sbin/chroot
 
         # can be used to set arbitrary values on the dataset/zvol
