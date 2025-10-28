@@ -1,0 +1,35 @@
+cluster:
+  top_level_domain: roybales.com
+  name: cluster
+  admin_email: rbales79@gmail.com
+  timezone: America/New_York
+  storage:
+    config:
+      storageClassName: truenas-iscsi
+    media:
+      nfs:
+        server: truenas.roybales.com
+        path: /mnt/volume1/media
+
+application:
+  name: Jellyfin
+  group: Media
+  icon: cbi:jellyfin
+  iconColor: "#00A4DC"
+  image: "https://github.com/jellyfin/jellyfin-ux/raw/master/branding/SVG/banner-logo-solid.svg"
+  description: "Media server for movies and TV shows"
+  port: 8096
+  location: 100
+
+jellyfin:
+  network:
+    ip: 192.168.1.206
+
+pods:
+  main:
+    env:
+      VERSION: docker
+    image:
+      repository: lscr.io/linuxserver/jellyfin
+      # renovate: datasource=docker depName=lscr.io/linuxserver/jellyfin versioning=semver
+      tag: 10.10.3

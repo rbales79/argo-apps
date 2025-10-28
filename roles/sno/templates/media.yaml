@@ -22,7 +22,7 @@ spec:
         - name: overseerr
         #- name: metube
         #- name: pinchflat
-        - name: plex
+        #- name: plex
         #- name: posterizarr
         - name: prowlarr
         - name: radarr
