@@ -1,63 +1,47 @@
+{{- if .Capabilities.APIVersions.Has "console.openshift.io/v1" }}
 ---
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
 metadata:
-  name: {{ .Release.Name }}
+  name: "{{ .Release.Name }}-namespace-dashboard-link"
   labels:
     app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
-  applicationMenu:
-    imageURL: {{ .Values.application.image }}
-    section: {{ .Values.application.group }}
-  href: https://{{ tpl .Values.route.hostname . }}
-  location: ApplicationMenu
-  text: {{ .Values.application.name }}
+  href: "https://{{ tpl .Values.route.hostname . }}"
+  location: NamespaceDashboard
+  namespaceDashboard:
+    namespaces:
+      - {{ .Values.application.name | lower | replace " " "-" }}
+  text: "Access Application"
 ---
-apiVersion: app.k8s.io/v1beta1
-kind: Application
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
 metadata:
-  name: {{ .Release.Name }}
-  namespace: {{ .Values.application.name | lower | replace " " "-" }}
+  name: "{{ .Release.Name }}-application-menu-link"
   labels:
     app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
-  componentKinds:
-    - group: apps
-      kind: StatefulSet
-    - group: ""
-      kind: Service
-    - group: route.openshift.io
-      kind: Route
-  descriptor:
-    description: {{ .Values.application.description }}
-    icons:
-      - size: 128x128
-        src: {{ .Values.application.image }}
-        type: image/png
-    keywords:
-      - terraform
-      - infrastructure
-      - iac
-      - automation
-      - hashicorp
-    links:
-      - description: Application Route
-        url: https://{{ tpl .Values.route.hostname . }}
-      - description: Admin Console
-        url: https://{{ .Release.Name }}-console.{{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}
-    maintainers:
-      - email: {{ .Values.cluster.admin_email }}
-        name: {{ .Values.cluster.admin_email }}
-    type: {{ .Values.application.name }}
-    version: {{ .Values.pods.main.image.tag }}
-  info:
-    - name: URL
-      value: https://{{ tpl .Values.route.hostname . }}
-    - name: Console URL
-      value: https://{{ .Release.Name }}-console.{{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+  href: "https://{{ tpl .Values.route.hostname . }}"
+  location: ApplicationMenu
+  applicationMenu:
+    section: {{ .Values.application.group | quote }}
+    imageURL: {{ .Values.application.image | quote }}
+  text: {{ .Values.application.name | quote }}
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: "{{ .Release.Name }}-admin-console-link"
+  labels:
+    app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  href: "https://{{ .Release.Name }}-console.{{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}"
+  location: NamespaceDashboard
+  namespaceDashboard:
+    namespaces:
+      - {{ .Values.application.name | lower | replace " " "-" }}
+  text: "Admin Console"
+{{- end }}
