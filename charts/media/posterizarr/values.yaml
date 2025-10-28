@@ -8,8 +8,8 @@ cluster:
     #  storageClassName: synology-iscsi
     media:
       nfs:
-        server: nas
-        path: /volume1/media
+        server: truenas.roybales.com
+        path: /mnt/volume1/media
 
 pods:
   init:

@@ -9,7 +9,7 @@ cluster:
     media:
       nfs:
         server: truenas.roybales.com
-        path: /mnt/volume1/sno
+        path: /mnt/volume1/media
 
 application:
   name: Sonarr
