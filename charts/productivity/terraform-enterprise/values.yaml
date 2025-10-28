@@ -30,10 +30,10 @@ terraformEnterprise:
   # TLS configuration
   tls:
     # Set to true to enable TLS
-    enabled: true
+    enabled: false
     # Certificate can be provided via cert-manager or manually
     certManager:
-      enabled: true
+      enabled: false
       issuer: letsencrypt-production
       issuerKind: ClusterIssuer
 
