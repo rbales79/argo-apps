@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: {{ .Release.Name }}-base
+  annotations:
+    argocd.argoproj.io/sync-wave: "100"
+spec:
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/syncPolicy
+  goTemplate: true
+  generators:
+    - list:
+        elements:
+        - name: certificates
+          group: infrastructure
+        - name: custom-error-pages
+          group: infrastructure
+          createNamespace: false
+        - name: emqx-operator
+          group: infrastructure
+        #- name: generic-device-plugin
+        #  group: infrastructure
+        - name: goldilocks
+          group: infrastructure
+        - name: gatus
+          group: infrastructure
+        - name: k10-kasten-operator
+          group: infrastructure
+          createNamespace: false
+#        - name: openshift-nfd
+#          group: infrastructure
+        #- name: system-reservation
+        #  group: infrastructure
+        #  createNamespace: false
+  template:
+    metadata:
+      name: '{{ "{{" }} .name {{ "}}" }}'
+      namespace: "openshift-gitops"
+    spec:
+      ignoreDifferences:
+      - kind: Application
+        group: argoproj.io
+        jsonPointers:
+        - /spec/syncPolicy/automated
+      project: default
+      destination:
+        server: {{ .Values.spec.destination.server }}
+        namespace: '{{ "{{" }} .name {{ "}}" }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace={{ "{{" }} if hasKey . "createNamespace" {{ "}}" }}{{ "{{" }} .createNamespace {{ "}}" }}{{ "{{" }} else {{ "}}" }}true{{ "{{" }} end {{ "}}" }}
+      source:
+        repoURL: {{ .Values.spec.source.repoURL }}
+        path: charts/{{ "{{" }} default "base" .group {{ "}}" }}/{{ "{{" }} .name {{ "}}" }}
+        targetRevision: {{ .Values.spec.source.targetRevision }}
+        helm:
+          valuesObject:
+            spec:
+{{ .Values.spec | toYaml | nindent 14 }}
+{{ .Values.config | toYaml | nindent 12 }}

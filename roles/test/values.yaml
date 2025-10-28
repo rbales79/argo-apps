@@ -1,0 +1,51 @@
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: https://github.com/rbales79/argo-apps
+    targetRevision: HEAD
+
+config:
+  cluster:
+    top_level_domain: roybales.com
+    name: test
+    admin_email: rbales79@gmail.com
+    timezone: America/New_York
+    storage:
+      truenas:
+        datasetParentName: "volume1/iscsi/test/vols"
+        detachedSnapshotsDatasetParentName: "volume1/iscsi/test/snaps"
+      democratic-csi:
+        httpConnection:
+          host: truenas.roybales.com
+          port: 3260
+        iscsi:
+          targetPortal: truenas.roybales.com
+      config:
+        storageClassName: truenas-iscsi
+      media:
+        nfs:
+          server: truenas.roybales.com
+          path: /mnt/volume1/media
+
+  plex:
+    network:
+      ip: 192.168.1.205
+
+  emqx:
+    network:
+      ip: 192.168.1.204
+
+  certificates:
+    letsencrypt:
+      issuer: production
+
+  externalSecrets:
+    secret: infisical-auth-secret
+    infisical:
+      projectSlug: hub
+      environmentSlug: prod
+
+  network:
+    lan:
+      defaultGateway: 192.168.1.1

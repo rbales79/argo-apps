@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-delay-after-security
+  annotations:
+    argocd.argoproj.io/sync-wave: "25"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ .Release.Name }}-wait-for-eso
+      containers:
+      - name: wait-for-eso
+        image: registry.access.redhat.com/ubi8/ubi-minimal:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Waiting for External Secrets Operator to be ready..."
+
+          # Wait for the operator deployment to exist and be ready
+          for i in {1..60}; do
+            if oc get deployment -n external-secrets-operator external-secrets-operator 2>/dev/null; then
+              echo "External Secrets Operator deployment found, checking rollout status..."
+              if oc rollout status deployment/external-secrets-operator -n external-secrets-operator --timeout=5m; then
+                echo "External Secrets Operator is ready!"
+                break
+              fi
+            fi
+            echo "Waiting for External Secrets Operator... (attempt $i/60)"
+            sleep 5
+          done
+
+          # Additional delay to ensure CRDs are fully registered
+          echo "Waiting additional 2 minutes for CRDs to stabilize..."
+          sleep 120
+
+          echo "ESO readiness check complete, proceeding to storage deployment"
+      restartPolicy: Never
+  backoffLimit: 3
