@@ -1,0 +1,232 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.application.name | lower | replace " " "-" }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    kasten/backup: "true"
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  revisionHistoryLimit: 1
+  replicas: 1
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  serviceName: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      enableServiceLinks: false
+      serviceAccountName: {{ .Values.application.name | lower | replace " " "-" }}
+      automountServiceAccountToken: true
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        supplementalGroups:
+          - 1000
+      initContainers:
+        # Fix permissions on data directories
+        - name: init-permissions
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              chown -R 1000:1000 /var/lib/terraform-enterprise
+              chown -R 1000:1000 /etc/terraform-enterprise
+              {{- if .Values.pods.postgres.enabled }}
+              chown -R 999:999 /var/lib/postgresql/data
+              {{- end }}
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/terraform-enterprise
+            - name: config
+              mountPath: /etc/terraform-enterprise
+            {{- if .Values.pods.postgres.enabled }}
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            {{- end }}
+      containers:
+        # Main Terraform Enterprise container
+        - name: terraform-enterprise
+          image: {{ .Values.pods.main.image.repository }}:{{ .Values.pods.main.image.tag }}
+          imagePullPolicy: {{ .Values.pods.main.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+          env:
+            - name: TZ
+              value: {{ .Values.cluster.timezone }}
+            {{- range .Values.pods.main.env }}
+            - name: {{ .name }}
+              {{- if .value }}
+              value: {{ tpl .value $ | quote }}
+              {{- else if .valueFrom }}
+              valueFrom:
+                {{- toYaml .valueFrom | nindent 16 }}
+              {{- end }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+            - name: console
+              containerPort: 8800
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /_health_check
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /_health_check
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.pods.main.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/terraform-enterprise
+            - name: config
+              mountPath: /etc/terraform-enterprise
+            {{- if .Values.terraformEnterprise.tls.enabled }}
+            - name: tls-certs
+              mountPath: /etc/ssl/private/terraform-enterprise
+              readOnly: true
+            {{- end }}
+        {{- if .Values.pods.postgres.enabled }}
+        # PostgreSQL sidecar container
+        - name: postgres
+          image: {{ .Values.pods.postgres.image.repository }}:{{ .Values.pods.postgres.image.tag }}
+          imagePullPolicy: {{ .Values.pods.postgres.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+          env:
+            {{- range .Values.pods.postgres.env }}
+            - name: {{ .name }}
+              {{- if .value }}
+              value: {{ tpl .value $ | quote }}
+              {{- else if .valueFrom }}
+              valueFrom:
+                {{- toYaml .valueFrom | nindent 16 }}
+              {{- end }}
+            {{- end }}
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.pods.postgres.resources | nindent 12 }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+        {{- end }}
+      volumes:
+        {{- if .Values.terraformEnterprise.tls.enabled }}
+        - name: tls-certs
+          secret:
+            secretName: {{ .Release.Name }}-tls
+            defaultMode: 0400
+        {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
+          app.kubernetes.io/instance: {{ .Release.Name }}
+      spec:
+        accessModes:
+          - {{ .Values.persistence.data.accessMode }}
+        storageClassName: {{ .Values.persistence.data.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.data.size }}
+    - metadata:
+        name: config
+        labels:
+          app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
+          app.kubernetes.io/instance: {{ .Release.Name }}
+      spec:
+        accessModes:
+          - {{ .Values.persistence.config.accessMode }}
+        storageClassName: {{ .Values.persistence.config.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.config.size }}
+    {{- if .Values.pods.postgres.enabled }}
+    - metadata:
+        name: postgres-data
+        labels:
+          app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
+          app.kubernetes.io/instance: {{ .Release.Name }}
+      spec:
+        accessModes:
+          - {{ .Values.persistence.postgres.accessMode }}
+        storageClassName: {{ .Values.persistence.postgres.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.postgres.size }}
+    {{- end }}

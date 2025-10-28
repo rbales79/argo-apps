@@ -1,0 +1,226 @@
+cluster:
+  top_level_domain: roybales.com
+  name: cluster
+  admin_email: rbales79@gmail.com
+  timezone: America/New_York
+  storage:
+    config:
+      storageClassName: truenas-iscsi
+
+application:
+  name: Terraform Enterprise
+  group: Productivity
+  icon: terraform
+  iconColor: "#7B42BC"
+  image: "https://raw.githubusercontent.com/walkxcode/dashboard-icons/refs/heads/main/png/terraform.png"
+  description: "HashiCorp Terraform Enterprise - Infrastructure as Code Platform"
+  port: 8800
+  location: 0
+
+# Terraform Enterprise configuration
+terraformEnterprise:
+  # License configuration - store your license in Infisical
+  license:
+    secretName: terraform-enterprise-license
+    secretKey: license
+
+  # Deployment mode: "mounted-disk" or "external"
+  deploymentMode: mounted-disk
+
+  # TLS configuration
+  tls:
+    # Set to true to enable TLS
+    enabled: true
+    # Certificate can be provided via cert-manager or manually
+    certManager:
+      enabled: true
+      issuer: letsencrypt-production
+      issuerKind: ClusterIssuer
+
+  # PostgreSQL database configuration
+  database:
+    # Use external PostgreSQL database
+    external: false
+    # If external is false, PostgreSQL will be deployed as a sidecar
+    host: localhost
+    port: 5432
+    name: terraform_enterprise
+    user: postgres
+    # Password secret - store in Infisical
+    passwordSecret:
+      name: terraform-enterprise-db
+      key: password
+
+  # Object storage configuration (for external mode)
+  objectStorage:
+    enabled: false
+    type: s3  # s3, azure, gcs
+    s3:
+      bucket: terraform-enterprise
+      region: us-east-1
+      # Credentials via ExternalSecret
+      accessKeySecret:
+        name: terraform-enterprise-s3
+        key: access-key
+      secretKeySecret:
+        name: terraform-enterprise-s3
+        key: secret-key
+
+  # Redis configuration (optional - for improved performance)
+  redis:
+    enabled: false
+    host: localhost
+    port: 6379
+    passwordSecret:
+      name: terraform-enterprise-redis
+      key: password
+
+  # Encryption password - REQUIRED
+  # Store in Infisical
+  encryptionPassword:
+    secretName: terraform-enterprise-secrets
+    secretKey: encryption-password
+
+  # Admin user configuration
+  admin:
+    # Initial admin user - created on first run
+    username: admin
+    email: rbales79@gmail.com
+    # Password via ExternalSecret
+    passwordSecret:
+      name: terraform-enterprise-secrets
+      key: admin-password
+
+# Pod configuration
+pods:
+  main:
+    image:
+      repository: hashicorp/terraform-enterprise
+      # renovate: datasource=docker depName=hashicorp/terraform-enterprise
+      tag: "v202410-1"
+      pullPolicy: IfNotPresent
+
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+      limits:
+        cpu: 4000m
+        memory: 8Gi
+
+    env:
+      # TFE Application settings
+      - name: TFE_HOSTNAME
+        value: "terraform.{{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}"
+      - name: TFE_OPERATIONAL_MODE
+        value: "{{ .Values.terraformEnterprise.deploymentMode }}"
+      - name: TFE_ENCRYPTION_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: "{{ .Values.terraformEnterprise.encryptionPassword.secretName }}"
+            key: "{{ .Values.terraformEnterprise.encryptionPassword.secretKey }}"
+      - name: TFE_LICENSE
+        valueFrom:
+          secretKeyRef:
+            name: "{{ .Values.terraformEnterprise.license.secretName }}"
+            key: "{{ .Values.terraformEnterprise.license.secretKey }}"
+      - name: TFE_TLS_ENFORCE
+        value: "{{ .Values.terraformEnterprise.tls.enabled }}"
+      - name: TFE_DATABASE_HOST
+        value: "{{ .Values.terraformEnterprise.database.host }}"
+      - name: TFE_DATABASE_NAME
+        value: "{{ .Values.terraformEnterprise.database.name }}"
+      - name: TFE_DATABASE_USER
+        value: "{{ .Values.terraformEnterprise.database.user }}"
+      - name: TFE_DATABASE_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: "{{ .Values.terraformEnterprise.database.passwordSecret.name }}"
+            key: "{{ .Values.terraformEnterprise.database.passwordSecret.key }}"
+
+  # PostgreSQL sidecar (when not using external database)
+  postgres:
+    enabled: true
+    image:
+      repository: postgres
+      tag: "15-alpine"
+      pullPolicy: IfNotPresent
+
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+
+    env:
+      - name: POSTGRES_DB
+        value: "{{ .Values.terraformEnterprise.database.name }}"
+      - name: POSTGRES_USER
+        value: "{{ .Values.terraformEnterprise.database.user }}"
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: "{{ .Values.terraformEnterprise.database.passwordSecret.name }}"
+            key: "{{ .Values.terraformEnterprise.database.passwordSecret.key }}"
+      - name: PGDATA
+        value: /var/lib/postgresql/data/pgdata
+
+# Persistence configuration
+persistence:
+  # Application data volume
+  data:
+    enabled: true
+    storageClass: "{{ .Values.cluster.storage.config.storageClassName }}"
+    accessMode: ReadWriteOnce
+    size: 50Gi
+    mountPath: /var/lib/terraform-enterprise
+
+  # PostgreSQL data volume
+  postgres:
+    enabled: true
+    storageClass: "{{ .Values.cluster.storage.config.storageClassName }}"
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    mountPath: /var/lib/postgresql/data
+
+  # Configuration volume
+  config:
+    enabled: true
+    storageClass: "{{ .Values.cluster.storage.config.storageClassName }}"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    mountPath: /etc/terraform-enterprise
+
+# Service configuration
+service:
+  main:
+    type: ClusterIP
+    ports:
+      http:
+        port: 80
+        targetPort: 8080
+      https:
+        port: 443
+        targetPort: 8443
+      console:
+        port: 8800
+        targetPort: 8800
+
+# Route configuration (OpenShift)
+route:
+  enabled: true
+  hostname: "terraform.{{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}"
+  tls:
+    enabled: "{{ .Values.terraformEnterprise.tls.enabled }}"
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+# Gatus monitoring
+gatus:
+  enabled: true
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

@@ -1,0 +1,22 @@
+---
+{{- if and .Values.terraformEnterprise.tls.enabled .Values.terraformEnterprise.tls.certManager.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Release.Name }}-tls
+  namespace: {{ .Values.application.name | lower | replace " " "-" }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  secretName: {{ .Release.Name }}-tls
+  issuerRef:
+    kind: {{ .Values.terraformEnterprise.tls.certManager.issuerKind }}
+    name: {{ .Values.terraformEnterprise.tls.certManager.issuer }}
+  commonName: {{ tpl .Values.route.hostname . }}
+  dnsNames:
+    - {{ tpl .Values.route.hostname . }}
+    - {{ .Release.Name }}-console.{{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}
+{{- end }}

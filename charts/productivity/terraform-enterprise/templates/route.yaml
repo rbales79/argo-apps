@@ -1,0 +1,52 @@
+---
+{{- if .Values.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.application.name | lower | replace " " "-" }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    haproxy.router.openshift.io/timeout: 600s
+spec:
+  host: {{ tpl .Values.route.hostname . }}
+  to:
+    kind: Service
+    name: {{ .Release.Name }}
+    weight: 100
+  port:
+    targetPort: {{ if .Values.route.tls.enabled }}https{{ else }}http{{ end }}
+  {{- if .Values.route.tls.enabled }}
+  tls:
+    termination: {{ .Values.route.tls.termination }}
+    insecureEdgeTerminationPolicy: {{ .Values.route.tls.insecureEdgeTerminationPolicy }}
+  {{- end }}
+  wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Release.Name }}-console
+  namespace: {{ .Values.application.name | lower | replace " " "-" }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.application.name | lower | replace " " "-" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    haproxy.router.openshift.io/timeout: 600s
+spec:
+  host: {{ .Release.Name }}-console.{{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}
+  to:
+    kind: Service
+    name: {{ .Release.Name }}
+    weight: 100
+  port:
+    targetPort: console
+  {{- if .Values.route.tls.enabled }}
+  tls:
+    termination: {{ .Values.route.tls.termination }}
+    insecureEdgeTerminationPolicy: {{ .Values.route.tls.insecureEdgeTerminationPolicy }}
+  {{- end }}
+  wildcardPolicy: None
+{{- end }}

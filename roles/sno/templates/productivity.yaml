@@ -17,6 +17,7 @@ spec:
         - name: excalidraw
         - name: it-tools
         - name: startpunkt
+        - name: terraform-enterprise
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'
