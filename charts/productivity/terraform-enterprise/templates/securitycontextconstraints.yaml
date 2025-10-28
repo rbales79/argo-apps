@@ -22,13 +22,11 @@ fsGroup:
   ranges:
     - min: 999
       max: 1000
-priority: 10
+priority: 11
 readOnlyRootFilesystem: false
 requiredDropCapabilities: []
 runAsUser:
-  type: MustRunAsRange
-  uidRangeMin: 0
-  uidRangeMax: 1000
+  type: RunAsAny
 seLinuxContext:
   type: MustRunAs
 supplementalGroups:
