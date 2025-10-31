@@ -30,6 +30,9 @@ goldilocks:
 gatus:
   enabled: true
 
+keepalived-operator:
+  enabled: true
+
 k10-kasten-operator:
   enabled: true
 

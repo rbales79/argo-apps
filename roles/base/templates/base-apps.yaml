@@ -25,6 +25,9 @@ spec:
         {{- if .Values.gatus.enabled }}
         - name: gatus
         {{- end }}
+        {{- if index .Values "keepalived-operator" "enabled" }}
+        - name: keepalived-operator
+        {{- end }}
         {{- if index .Values "k10-kasten-operator" "enabled" }}
         - name: k10-kasten-operator
           createNamespace: false
