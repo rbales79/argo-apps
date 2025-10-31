@@ -65,7 +65,7 @@ pods:
 
 # Gatus monitoring
 gatus:
-  enabled: false
+  enabled: true
   interval: 5m
   conditions:
     - "[STATUS] == 200"
