@@ -72,3 +72,11 @@ pods:
     gpu:
       enabled: false
       count: 1
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

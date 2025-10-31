@@ -42,3 +42,11 @@ pods:
       limits:
         cpu: "500m"
         memory: "512Mi"
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

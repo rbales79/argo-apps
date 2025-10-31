@@ -38,3 +38,11 @@ pods:
       repository: docker.io/kometateam/imagemaid
       # renovate: datasource=docker depName=docker.io/kometateam/imagemaid versioning=semver
       tag: v1.1.1
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

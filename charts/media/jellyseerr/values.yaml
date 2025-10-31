@@ -30,3 +30,11 @@ pods:
       pullPolicy: IfNotPresent
     env:
       LOG_LEVEL: info
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

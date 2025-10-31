@@ -28,3 +28,11 @@ pods:
       # renovate: datasource=docker depName=ghcr.io/home-operations/lidarr versioning=semver
       tag: 2.14.5.4836
       pullPolicy: IfNotPresent
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

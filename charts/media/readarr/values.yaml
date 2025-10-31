@@ -28,3 +28,11 @@ pods:
       # renovate: datasource=docker depName=ghcr.io/k8s-at-home/readarr versioning=semver
       tag: v0.1.1.1352
       pullPolicy: IfNotPresent
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

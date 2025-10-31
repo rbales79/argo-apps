@@ -12,7 +12,7 @@ data:
     endpoints:
       - name: {{ .Values.application.name }}
         group: {{ .Values.application.group }}
-        url: "https://{{ tpl .Values.route.hostname . }}"
+        url: "https://{{ .Release.Name }}.apps.{{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}"
         interval: {{ .Values.gatus.interval }}
         client:
           insecure: false

@@ -50,3 +50,11 @@ pods:
           timeoutSeconds: 1
           failureThreshold: 3
       readiness: *probes
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

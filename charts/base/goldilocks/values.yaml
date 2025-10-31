@@ -29,3 +29,11 @@ pods:
       # renovate: datasource=docker depName=us-docker.pkg.dev/fairwinds-ops/oss/goldilocks versioning=semver
       tag: v4.14.4
       pullPolicy: IfNotPresent
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

@@ -28,3 +28,11 @@ pods:
       repository: housewrecker/gaps
       tag: x64-v0.10.4
       pullPolicy: IfNotPresent
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

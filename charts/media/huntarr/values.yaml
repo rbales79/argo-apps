@@ -28,3 +28,11 @@ pods:
       # renovate: datasource=docker depName=ghcr.io/plexguide/huntarr versioning=semver
       tag: 8.2.10
       pullPolicy: IfNotPresent
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

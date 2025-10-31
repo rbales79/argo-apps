@@ -28,3 +28,11 @@ pods:
       # renovate: datasource=docker depName=ghcr.io/gchq/cyberchef versioning=semver
       tag: 10.19.4
       pullPolicy: IfNotPresent
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

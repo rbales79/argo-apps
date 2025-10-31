@@ -31,3 +31,11 @@ pods:
     env:
       DOWNLOAD_DIR: /data/media/metube
       STATE_DIR: /config
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"

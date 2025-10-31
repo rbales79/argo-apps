@@ -28,3 +28,11 @@ pods:
       # renovate: datasource=docker depName=jvmilazz0/kavita versioning=semver
       tag: 0.8.7
       pullPolicy: IfNotPresent
+
+# Gatus monitoring
+gatus:
+  enabled: false
+  interval: 5m
+  conditions:
+    - "[STATUS] == 200"
+    - "[RESPONSE_TIME] < 3000"
