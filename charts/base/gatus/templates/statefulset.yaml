@@ -52,8 +52,6 @@ spec:
               value: "true"
             - name: METHOD
               value: "WATCH"
-            - name: SKIP_TLS_VERIFY
-              value: "true"
           resources:
             requests:
               cpu: 10m
