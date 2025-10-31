@@ -22,21 +22,25 @@ config:
           apiKey: TRUENAS_API_KEY
           sshPassword: TRUENAS_SSH_PASSWORD
           truenasPassword: TRUENAS_PASSWORD
-      config:
+      storageConfig:
         storageClassName: truenas-iscsi
-      media:
+      mediaStorage:
         nfs:
           server: truenas.roybales.com
           path: /mnt/volume1/media
 
-  plex:
-    network:
-      ip: 192.168.1.225
+  # Application configurations are grouped under 'apps'.
+  apps:
+    plex:
+      network:
+        ip: 192.168.1.225
+    emqx:
+      network:
+        ip: 192.168.1.226
 
-  emqx:
-    network:
-      ip: 192.168.1.226
-
+  # Certificates configuration:
+  # Used to specify certificate issuers for ingress/route resources in app charts.
+  # The 'letsencrypt.issuer' value is referenced by templates to set the cert-manager ClusterIssuer or Route TLS issuer.
   certificates:
     letsencrypt:
       issuer: production
