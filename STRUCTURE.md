@@ -23,21 +23,22 @@ Cluster-specific configurations that define which functional roles are enabled:
 
 Application Helm charts organized by functional domain:
 
-- **`base/`** - Core cluster components required by all clusters
-  - certificates, custom-error-pages, gatus, generic-device-plugin, goldilocks, k10-kasten-operator, keepalived-operator, openshift-nfd, system-reservation
+- **`base/`** - Core cluster infrastructure (certificates, error pages, monitoring, backup, etc.)
+- **`security/`** - Security components (External Secrets Operator) - deployed via base role
+- **`storage/`** - Storage providers (TrueNAS, Synology) - deployed via base role when enabled
+- **`tweaks/`** - Cluster configuration tweaks - deployed via base role
 - **`ai/`** - AI/ML applications (LiteLLM, Ollama, Open-WebUI)
 - **`home-automation/`** - IoT and home automation (EMQX, Home Assistant, Node-RED, Z-Wave JS)
 - **`infrastructure/`** - Optional infrastructure (ACM, MCE, Intel GPU)
 - **`media/`** - Media server applications (Plex, Sonarr, Radarr, Jellyfin, etc.)
 - **`productivity/`** - Productivity tools (Terraform Enterprise, Startpunkt, etc.)
 - **`radio/`** - Radio/ADSB applications
-- **`security/`** - Security tools (External Secrets Operator)
-- **`storage/`** - Storage providers (TrueNAS, Synology)
-- **`tweaks/`** - Cluster configuration tweaks
 
-## Base Components (`charts/base/`)
+## Base Components
 
-All cluster types deploy these core components from `charts/base/`:
+The base role deploys core components from multiple chart directories:
+
+### Core Infrastructure (`charts/base/`)
 
 - **certificates** - cert-manager operator with Let's Encrypt ClusterIssuers
 - **custom-error-pages** - Branded error pages for OpenShift router
@@ -49,7 +50,22 @@ All cluster types deploy these core components from `charts/base/`:
 - **openshift-nfd** - Node Feature Discovery for hardware detection
 - **system-reservation** - System resource reservation via MachineConfig
 
-Components can be selectively enabled/disabled per cluster type via the base role's values.
+### Security (`charts/security/`)
+
+- **external-secrets-operator** - Secret management with Infisical integration
+
+### Storage (`charts/storage/`)
+
+- **synology** - Synology NAS CSI driver (optional, disabled by default)
+- **truenas** - TrueNAS CSI driver (optional, disabled by default)
+
+### Tweaks (`charts/tweaks/`)
+
+- **snapshot-finalizer-remover** - Cleanup utility for VolumeSnapshot finalizers
+- **disable-master-secondary-interfaces** - Network interface management (optional)
+- **disable-worker-secondary-interfaces** - Network interface management (optional)
+
+All components can be selectively enabled/disabled per cluster type via the base role's values.
 
 ## Deployment Flow
 
