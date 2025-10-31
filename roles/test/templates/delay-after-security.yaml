@@ -12,7 +12,7 @@ spec:
       serviceAccountName: {{ .Release.Name }}-wait-for-eso
       containers:
       - name: wait-for-eso
-        image: registry.access.redhat.com/ubi8/ubi-minimal:latest
+        image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
         command:
         - /bin/sh
         - -c
@@ -25,14 +25,14 @@ spec:
                oc get crd secretstores.external-secrets.io 2>/dev/null && \
                oc get crd clustersecretstores.external-secrets.io 2>/dev/null; then
               echo "External Secrets Operator CRDs are available!"
-              
+
               # Optional: Check if operator pods are running (handles both fresh install and existing)
               if oc get pods -n external-secrets-operator 2>/dev/null | grep -q "Running\|Completed"; then
                 echo "External Secrets Operator pods are running"
               else
                 echo "No ESO pods found, but CRDs are available (operator may be cluster-scoped)"
               fi
-              
+
               # Brief stabilization delay
               echo "Waiting 30 seconds for CRDs to stabilize..."
               sleep 30
