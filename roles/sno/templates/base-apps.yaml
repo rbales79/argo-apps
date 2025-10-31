@@ -35,7 +35,7 @@ spec:
             group: base
           - name: system-reservation
             group: base
-          #  createNamespace: false
+            createNamespace: false
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'
