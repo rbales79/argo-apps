@@ -13,14 +13,15 @@ config:
     timezone: America/New_York
     storage:
       truenas:
-        datasetParentName: "volume1/iscsi/hub/vols"
-        detachedSnapshotsDatasetParentName: "volume1/iscsi/hub/snaps"
-      democratic-csi:
-        httpConnection:
-          host: truenas.roybales.com
-          port: 3260
+        zfs:
+          datasetParentName: "volume1/iscsi/hub/vols"
+          detachedSnapshotsDatasetParentName: "volume1/iscsi/hub/snaps"
         iscsi:
-          targetPortal: truenas.roybales.com
+          namePrefix: "hub-"
+        secretKeys:
+          apiKey: TRUENAS_API_KEY
+          sshPassword: TRUENAS_SSH_PASSWORD
+          truenasPassword: TRUENAS_PASSWORD
       config:
         storageClassName: truenas-iscsi
       media:
