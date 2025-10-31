@@ -26,12 +26,12 @@ spec:
           - name: k10-kasten-operator
             group: base
             createNamespace: false
-          #- name: generic-device-plugin
-          #  group: base
-          #- name: openshift-nfd
-          #  group: base
-          #- name: system-reservation
-          #  group: base
+          - name: generic-device-plugin
+            group: base
+          - name: openshift-nfd
+            group: base
+          - name: system-reservation
+            group: base
           #  createNamespace: false
   template:
     metadata:
