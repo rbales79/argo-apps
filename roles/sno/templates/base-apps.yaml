@@ -17,6 +17,9 @@ spec:
           - name: custom-error-pages
             group: base
             createNamespace: false
+          - name: vertical-pod-autoscaler
+            group: base
+            createNamespace: false
           - name: goldilocks
             group: base
           - name: gatus

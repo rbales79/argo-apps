@@ -1,0 +1,22 @@
+cluster:
+  top_level_domain: roybales.com
+  name: cluster
+  admin_email: rbales79@gmail.com
+  timezone: America/New_York
+
+application:
+  name: Vertical Pod Autoscaler
+  group: Infrastructure
+  icon: mdi:arrow-expand-vertical
+  iconColor: ""
+  image: ""
+  description: "Automatic container resource recommendations"
+  location: 0
+  tags: admin
+
+operator:
+  channel: stable
+  installPlanApproval: Automatic
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  name: vertical-pod-autoscaler
