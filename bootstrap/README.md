@@ -93,14 +93,14 @@ spec:
         - name: config.cluster.top_level_domain
           value: "example.local"
         - name: spec.source.repoURL
-          value: "https://github.com/YOUR_USERNAME/openshift"
+          value: "https://github.com/YOUR_USERNAME/argo-apps"
         - name: spec.source.targetRevision
-          value: "v2"
+          value: "main"
         - name: config.cluster.storage.config.storageClassName
           value: "your-storage-class"
     path: cluster
-    repoURL: "https://github.com/YOUR_USERNAME/openshift"
-    targetRevision: v2
+    repoURL: "https://github.com/YOUR_USERNAME/argo-apps"
+    targetRevision: main
   syncPolicy:
     automated:
       prune: true

@@ -1,0 +1,43 @@
+# Base role contains core cluster components
+# These are required for all clusters regardless of type
+
+cluster:
+  top_level_domain: ""
+  name: ""
+  admin_email: ""
+  timezone: ""
+
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: ""
+    targetRevision: ""
+
+config:
+  cluster: {}
+
+# Core components enabled by default
+certificates:
+  enabled: true
+
+custom-error-pages:
+  enabled: true
+
+goldilocks:
+  enabled: true
+
+gatus:
+  enabled: true
+
+k10-kasten-operator:
+  enabled: true
+
+generic-device-plugin:
+  enabled: false  # Enable if needed for specific hardware
+
+openshift-nfd:
+  enabled: false  # Enable if needed for node feature discovery
+
+system-reservation:
+  enabled: false  # Enable if needed for system resource reservation

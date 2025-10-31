@@ -12,6 +12,7 @@ spec:
   generators:
     - list:
         elements:
+        - name: emqx-operator
         - name: home-assistant
         - name: node-red
         #- name: zwavejs2mqtt

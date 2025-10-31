@@ -169,14 +169,14 @@ spec:
         - name: config.cluster.top_level_domain
           value: ullberg.local
         - name: spec.source.repoURL
-          value: "https://github.com/ullbergm/openshift/"
+          value: "https://github.com/rbales79/argo-apps/"
         - name: spec.source.targetRevision
-          value: v2
+          value: main
         - name: config.cluster.storage.config.storageClassName
           value: "local-path"
     path: cluster
-    repoURL: "https://github.com/ullbergm/openshift/"
-    targetRevision: v2
+    repoURL: "https://github.com/rbales79/argo-apps/"
+    targetRevision: main
 ```
 
 ## OpenShift Integration Features
