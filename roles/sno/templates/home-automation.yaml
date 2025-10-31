@@ -56,11 +56,5 @@ spec:
               enabled: {{ "{{" }} default false .gatus.enabled {{ "}}" }}
               interval: {{ "{{" }} default "5m" .gatus.interval {{ "}}" }}
               conditions:
-{{ "{{" }}- if .gatus.conditions {{ "}}" }}
-{{ "{{" }}- range .gatus.conditions {{ "}}" }}
-                - {{ "{{" }} . | quote {{ "}}" }}
-{{ "{{" }}- end {{ "}}" }}
-{{ "{{" }}- else {{ "}}" }}
                 - "[STATUS] == 200"
                 - "[RESPONSE_TIME] < 3000"
-{{ "{{" }}- end {{ "}}" }}
