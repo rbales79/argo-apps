@@ -14,12 +14,16 @@ spec:
         elements:
           - name: litellm
             group: ai
+            gatus:
+              enabled: true
           #- name: n8n
           #  group: ai
           #- name: ollama
           #  group: ai
           - name: open-webui
             group: ai
+            gatus:
+              enabled: true
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'
@@ -49,3 +53,15 @@ spec:
             spec:
 {{ .Values.spec | toYaml | nindent 14 }}
 {{ .Values.config | toYaml | nindent 12 }}
+            gatus:
+              enabled: {{ "{{" }} default false .gatus.enabled {{ "}}" }}
+              interval: {{ "{{" }} default "5m" .gatus.interval {{ "}}" }}
+              conditions:
+{{ "{{" }}- if .gatus.conditions {{ "}}" }}
+{{ "{{" }}- range .gatus.conditions {{ "}}" }}
+                - {{ "{{" }} . | quote {{ "}}" }}
+{{ "{{" }}- end {{ "}}" }}
+{{ "{{" }}- else {{ "}}" }}
+                - "[STATUS] == 200"
+                - "[RESPONSE_TIME] < 3000"
+{{ "{{" }}- end {{ "}}" }}

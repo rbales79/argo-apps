@@ -13,10 +13,20 @@ spec:
     - list:
         elements:
         - name: bookmarks
+          gatus:
+            enabled: true
         - name: cyberchef
+          gatus:
+            enabled: true
         - name: excalidraw
+          gatus:
+            enabled: true
         - name: it-tools
+          gatus:
+            enabled: true
         - name: startpunkt
+          gatus:
+            enabled: true
         #- name: terraform-enterprise
   template:
     metadata:
@@ -50,3 +60,15 @@ spec:
             spec:
 {{ .Values.spec | toYaml | nindent 14 }}
 {{ .Values.config | toYaml | nindent 12 }}
+            gatus:
+              enabled: {{ "{{" }} default false .gatus.enabled {{ "}}" }}
+              interval: {{ "{{" }} default "5m" .gatus.interval {{ "}}" }}
+              conditions:
+{{ "{{" }}- if .gatus.conditions {{ "}}" }}
+{{ "{{" }}- range .gatus.conditions {{ "}}" }}
+                - {{ "{{" }} . | quote {{ "}}" }}
+{{ "{{" }}- end {{ "}}" }}
+{{ "{{" }}- else {{ "}}" }}
+                - "[STATUS] == 200"
+                - "[RESPONSE_TIME] < 3000"
+{{ "{{" }}- end {{ "}}" }}

@@ -14,7 +14,11 @@ spec:
         elements:
         - name: emqx-operator
         - name: home-assistant
+          gatus:
+            enabled: true
         - name: node-red
+          gatus:
+            enabled: true
         #- name: zwavejs2mqtt
   template:
     metadata:
@@ -48,3 +52,15 @@ spec:
             spec:
 {{ .Values.spec | toYaml | nindent 14 }}
 {{ .Values.config | toYaml | nindent 12 }}
+            gatus:
+              enabled: {{ "{{" }} default false .gatus.enabled {{ "}}" }}
+              interval: {{ "{{" }} default "5m" .gatus.interval {{ "}}" }}
+              conditions:
+{{ "{{" }}- if .gatus.conditions {{ "}}" }}
+{{ "{{" }}- range .gatus.conditions {{ "}}" }}
+                - {{ "{{" }} . | quote {{ "}}" }}
+{{ "{{" }}- end {{ "}}" }}
+{{ "{{" }}- else {{ "}}" }}
+                - "[STATUS] == 200"
+                - "[RESPONSE_TIME] < 3000"
+{{ "{{" }}- end {{ "}}" }}

@@ -20,16 +20,26 @@ spec:
         #- name: kavita
         #- name: lidarr
         - name: overseerr
+          gatus:
+            enabled: true
         #- name: metube
         #- name: pinchflat
         #- name: plex
         #- name: posterizarr
         - name: prowlarr
+          gatus:
+            enabled: true
         - name: radarr
+          gatus:
+            enabled: true
         #- name: readarr
         #- name: recyclarr
         - name: sabnzbd
+          gatus:
+            enabled: true
         - name: sonarr
+          gatus:
+            enabled: true
         #- name: tautulli
   template:
     metadata:
@@ -63,3 +73,15 @@ spec:
             spec:
 {{ .Values.spec | toYaml | nindent 14 }}
 {{ .Values.config | toYaml | nindent 12 }}
+            gatus:
+              enabled: {{ "{{" }} default false .gatus.enabled {{ "}}" }}
+              interval: {{ "{{" }} default "5m" .gatus.interval {{ "}}" }}
+              conditions:
+{{ "{{" }}- if .gatus.conditions {{ "}}" }}
+{{ "{{" }}- range .gatus.conditions {{ "}}" }}
+                - {{ "{{" }} . | quote {{ "}}" }}
+{{ "{{" }}- end {{ "}}" }}
+{{ "{{" }}- else {{ "}}" }}
+                - "[STATUS] == 200"
+                - "[RESPONSE_TIME] < 3000"
+{{ "{{" }}- end {{ "}}" }}
