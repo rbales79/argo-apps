@@ -12,10 +12,8 @@ spec:
   generators:
     - list:
         elements:
-        {{- if index .Values "external-secrets-operator" "enabled" }}
-        - name: external-secrets-operator
-          group: security
-        {{- end }}
+          - name: external-secrets-operator
+            group: security
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'

@@ -12,20 +12,14 @@ spec:
   generators:
     - list:
         elements:
-        {{- if index .Values "snapshot-finalizer-remover" "enabled" }}
-        - name: snapshot-finalizer-remover
-          group: tweaks
-        {{- end }}
-        {{- if index .Values "disable-master-secondary-interfaces" "enabled" }}
-        - name: disable-master-secondary-interfaces
-          group: tweaks
-          createNamespace: false
-        {{- end }}
-        {{- if index .Values "disable-worker-secondary-interfaces" "enabled" }}
-        - name: disable-worker-secondary-interfaces
-          group: tweaks
-          createNamespace: false
-        {{- end }}
+          - name: snapshot-finalizer-remover
+            group: tweaks
+          #- name: disable-master-secondary-interfaces
+          #  group: tweaks
+          #  createNamespace: false
+          #- name: disable-worker-secondary-interfaces
+          #  group: tweaks
+          #  createNamespace: false
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'

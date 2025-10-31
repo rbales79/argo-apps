@@ -17,51 +17,6 @@ spec:
 config:
   cluster: {}
 
-# Core components enabled by default
-certificates:
-  enabled: true
-
-custom-error-pages:
-  enabled: true
-
-goldilocks:
-  enabled: true
-
-gatus:
-  enabled: true
-
-keepalived-operator:
-  enabled: true
-
-k10-kasten-operator:
-  enabled: true
-
-generic-device-plugin:
-  enabled: false  # Enable if needed for specific hardware
-
-openshift-nfd:
-  enabled: false  # Enable if needed for node feature discovery
-
-system-reservation:
-  enabled: false  # Enable if needed for system resource reservation
-
-# Security components (sync-wave: 0)
-external-secrets-operator:
-  enabled: true
-
-# Storage components (sync-wave: 50)
-synology:
-  enabled: false  # Enable if using Synology NAS
-
-truenas:
-  enabled: false  # Enable if using TrueNAS storage
-
-# Tweaks (sync-wave: 100)
-snapshot-finalizer-remover:
-  enabled: true
-
-disable-master-secondary-interfaces:
-  enabled: false
-
-disable-worker-secondary-interfaces:
-  enabled: false
+# Component configuration
+# To enable/disable components, uncomment/comment them in the ApplicationSet templates
+# See roles/base/templates/base-*.yaml files

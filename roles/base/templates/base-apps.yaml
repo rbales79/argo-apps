@@ -12,36 +12,27 @@ spec:
   generators:
     - list:
         elements:
-        {{- if .Values.certificates.enabled }}
-        - name: certificates
-        {{- end }}
-        {{- if index .Values "custom-error-pages" "enabled" }}
-        - name: custom-error-pages
-          createNamespace: false
-        {{- end }}
-        {{- if .Values.goldilocks.enabled }}
-        - name: goldilocks
-        {{- end }}
-        {{- if .Values.gatus.enabled }}
-        - name: gatus
-        {{- end }}
-        {{- if index .Values "keepalived-operator" "enabled" }}
-        - name: keepalived-operator
-        {{- end }}
-        {{- if index .Values "k10-kasten-operator" "enabled" }}
-        - name: k10-kasten-operator
-          createNamespace: false
-        {{- end }}
-        {{- if index .Values "generic-device-plugin" "enabled" }}
-        - name: generic-device-plugin
-        {{- end }}
-        {{- if index .Values "openshift-nfd" "enabled" }}
-        - name: openshift-nfd
-        {{- end }}
-        {{- if index .Values "system-reservation" "enabled" }}
-        - name: system-reservation
-          createNamespace: false
-        {{- end }}
+          - name: certificates
+            group: base
+          - name: custom-error-pages
+            group: base
+            createNamespace: false
+          - name: goldilocks
+            group: base
+          - name: gatus
+            group: base
+          - name: keepalived-operator
+            group: base
+          - name: k10-kasten-operator
+            group: base
+            createNamespace: false
+          #- name: generic-device-plugin
+          #  group: base
+          #- name: openshift-nfd
+          #  group: base
+          #- name: system-reservation
+          #  group: base
+          #  createNamespace: false
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'
