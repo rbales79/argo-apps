@@ -23,31 +23,32 @@ Cluster-specific configurations that define which functional roles are enabled:
 
 Application Helm charts organized by functional domain:
 
+- **`base/`** - Core cluster components required by all clusters
+  - certificates, custom-error-pages, gatus, generic-device-plugin, goldilocks, k10-kasten-operator, openshift-nfd, system-reservation
 - **`ai/`** - AI/ML applications (LiteLLM, Ollama, Open-WebUI)
-- **`home-automation/`** - IoT and home automation (EMQX, Home Assistant, Node-RED)
-- **`infrastructure/`** - Core infrastructure (certificates, Kasten, Goldilocks, Gatus)
-- **`media/`** - Media server applications (Plex, Sonarr, Radarr, etc.)
+- **`home-automation/`** - IoT and home automation (EMQX, Home Assistant, Node-RED, Z-Wave JS)
+- **`infrastructure/`** - Optional infrastructure (ACM, MCE, Keepalived, Intel GPU)
+- **`media/`** - Media server applications (Plex, Sonarr, Radarr, Jellyfin, etc.)
 - **`productivity/`** - Productivity tools (Terraform Enterprise, Startpunkt, etc.)
 - **`radio/`** - Radio/ADSB applications
 - **`security/`** - Security tools (External Secrets Operator)
 - **`storage/`** - Storage providers (TrueNAS, Synology)
 - **`tweaks/`** - Cluster configuration tweaks
 
-## Base Components
+## Base Components (`charts/base/`)
 
-All cluster types inherit these core components from the `base` role:
+All cluster types deploy these core components from `charts/base/`:
 
-- **External Secrets Operator** - Secret management with Infisical
-- **Keepalived Operator** - Virtual IP management
-- **Certificates** - cert-manager with Let's Encrypt
-- **Kasten K10** - Backup and disaster recovery
-- **Goldilocks** - VPA recommendations
-- **Gatus** - Health monitoring
-- **Custom Error Pages** - Branded error pages
-- **Generic Device Plugin** - Hardware device support
-- **OpenShift NFD** - Node Feature Discovery
+- **certificates** - cert-manager operator with Let's Encrypt ClusterIssuers
+- **custom-error-pages** - Branded error pages for OpenShift router
+- **gatus** - Health monitoring and status dashboard
+- **generic-device-plugin** - Kubernetes device plugin for custom hardware
+- **goldilocks** - VPA recommendations for resource optimization
+- **k10-kasten-operator** - Veeam Kasten backup and disaster recovery
+- **openshift-nfd** - Node Feature Discovery for hardware detection
+- **system-reservation** - System resource reservation via MachineConfig
 
-Base components can be selectively enabled/disabled per cluster type via the role's values.
+Components can be selectively enabled/disabled per cluster type via the base role's values.
 
 ## Deployment Flow
 
