@@ -40,26 +40,35 @@ spec:
         - 65535
       containers:
         - name: k8s-sidecar
-          image: {{ .Values.pods.init.image.repository }}:{{ .Values.pods.init.image.tag }}
+          image: {{ .Values.pods.sidecar.image.repository }}:{{ .Values.pods.sidecar.image.tag }}
+          imagePullPolicy: {{ .Values.pods.sidecar.image.pullPolicy | default "IfNotPresent" }}
+          {{- with .Values.pods.sidecar.env }}
           env:
-            - name: FOLDER
-              value: "/config"
-            - name: LABEL
-              value: "gatus.io/enabled"
-            - name: NAMESPACE
-              value: "ALL"
-            - name: UNIQUE_FILENAMES
-              value: "true"
-            - name: METHOD
-              value: "LIST"
-            - name: SLEEP_TIME
-              value: "60"
+          {{- range $key, $value := . }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+          {{- end }}
+          ports:
+            - containerPort: 8080
+              name: health
+              protocol: TCP
+          {{- with .Values.pods.sidecar.resources }}
           resources:
-            requests:
-              cpu: 10m
-              memory: 128Mi
-            limits:
-              memory: 256Mi
+{{ toYaml . | indent 12 }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 35
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 20
+            periodSeconds: 5
           volumeMounts:
           - mountPath: /config
             name: config
@@ -73,10 +82,14 @@ spec:
             value: "30"
           {{- range $key, $value := .Values.pods.main.env }}
           - name: {{ $key }}
-            value: "{{ $value }}"
+            value: {{ $value | quote }}
           {{- end }}
           image: {{ .Values.pods.main.image.repository }}:{{ .Values.pods.main.image.tag }}
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: {{ .Values.pods.main.image.pullPolicy | default "IfNotPresent" }}
+          {{- with .Values.pods.main.resources }}
+          resources:
+{{ toYaml . | indent 12 }}
+          {{- end }}
           volumeMounts:
           - mountPath: /data
             name: data

@@ -23,12 +23,29 @@ application:
   tags: admin
 
 pods:
-  init:
+  sidecar:
     image:
       repository: ghcr.io/kiwigrid/k8s-sidecar
       # renovate: datasource=docker depName=ghcr.io/kiwigrid/k8s-sidecar versioning=semver
       tag: 1.30.11
       pullPolicy: IfNotPresent
+    env:
+      # Service links are disabled in the pod spec, so explicitly set the API server endpoint.
+      FOLDER: /config
+      LABEL: gatus.io/enabled
+      LABEL_VALUE: "true"
+      NAMESPACE: ALL
+      RESOURCE: configmap
+      METHOD: WATCH
+      UNIQUE_FILENAMES: "true"
+      KUBERNETES_SERVICE_HOST: kubernetes.default.svc
+      KUBERNETES_SERVICE_PORT: "443"
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
 
   main:
     image:
@@ -37,6 +54,7 @@ pods:
       tag: v5.26.0
       pullPolicy: IfNotPresent
     env: {}
+    resources: {}
 
 config:
   web:
