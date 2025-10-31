@@ -1,0 +1,59 @@
+cluster:
+  top_level_domain: example.com
+  name: openshift
+  admin_email: admin@example.com
+  timezone: America/New_York
+  storage:
+    #config:
+    #  storageClassName: synology-iscsi
+    media:
+      nfs:
+        server: nas
+        path: /volume1/media
+
+application:
+  name: Gatus
+  group: Infrastructure
+  icon: game-icons:spyglass
+  iconColor: ""
+  image: "https://gatus.io/img/logo-with-light-text.svg"
+  description: "Service health monitoring"
+  port: 8080
+  location: 0
+  tags: admin
+
+pods:
+  init:
+    image:
+      repository: ghcr.io/kiwigrid/k8s-sidecar
+      # renovate: datasource=docker depName=ghcr.io/kiwigrid/k8s-sidecar versioning=semver
+      tag: 1.30.9@sha256:8c06e1ba643a4625de14b2db65c356f5db6b1482a25fce4754380a2936207338
+      pullPolicy: IfNotPresent
+
+  main:
+    image:
+      repository: twinproduction/gatus
+      # renovate: datasource=docker depName=twinproduction/gatus versioning=semver
+      tag: v5.29.0@sha256:b4afbcaf1cdfcda0b87e732914f101b0e2fab71485ae5d691ceb7b97d021b642
+      pullPolicy: IfNotPresent
+
+config:
+  web:
+    port: 8080
+  storage:
+    type: sqlite
+    path: /data/sqlite.db
+    caching: true
+  metrics: true
+  debug: false
+  ui:
+    title: Status | Gatus
+    header: Status
+  endpoints:
+    - name: google
+      group: external
+      url: https://google.com
+      interval: 60s
+      conditions:
+        - "[STATUS] == 200"
+        - "[BODY] == pat(*Google*)"
