@@ -52,10 +52,8 @@ spec:
               value: "true"
             - name: METHOD
               value: "WATCH"
-            - name: KUBERNETES_SERVICE_HOST
-              value: "kubernetes.default.svc"
-            - name: KUBERNETES_SERVICE_PORT
-              value: "443"
+            - name: SKIP_TLS_VERIFY
+              value: "true"
           restartPolicy: Always
           resources:
             requests:
