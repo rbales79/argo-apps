@@ -51,7 +51,9 @@ spec:
             - name: UNIQUE_FILENAMES
               value: "true"
             - name: METHOD
-              value: "WATCH"
+              value: "LIST"
+            - name: SLEEP_TIME
+              value: "60"
           resources:
             requests:
               cpu: 10m
