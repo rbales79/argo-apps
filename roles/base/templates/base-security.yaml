@@ -12,7 +12,10 @@ spec:
   generators:
     - list:
         elements:
-          - name: external-secrets-operator
+        {{- if index .Values "external-secrets-operator" "enabled" }}
+        - name: external-secrets-operator
+          group: security
+        {{- end }}
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'
@@ -42,7 +45,7 @@ spec:
             maxDuration: 16m
       source:
         repoURL: {{ .Values.spec.source.repoURL }}
-        path: charts/security/{{ "{{" }} .name {{ "}}" }}
+        path: charts/{{ "{{" }} .group {{ "}}" }}/{{ "{{" }} .name {{ "}}" }}
         targetRevision: {{ .Values.spec.source.targetRevision }}
         helm:
           valuesObject:

@@ -1,9 +1,9 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: {{ .Release.Name }}-security
+  name: {{ .Release.Name }}-storage
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "50"
 spec:
   ignoreApplicationDifferences:
     - jsonPointers:
@@ -12,40 +12,48 @@ spec:
   generators:
     - list:
         elements:
-          - name: external-secrets-operator
+        {{- if .Values.synology.enabled }}
+        - name: synology
+          group: storage
+          appName: cluster-synology
+          namespace: democratic-csi
+        {{- end }}
+        {{- if .Values.truenas.enabled }}
+        - name: truenas
+          group: storage
+          appName: cluster-truenas
+          namespace: democratic-csi
+        {{- end }}
   template:
     metadata:
-      name: '{{ "{{" }} .name {{ "}}" }}'
+      name: '{{ "{{" }} default .name .appName {{ "}}" }}'
       namespace: "openshift-gitops"
     spec:
       ignoreDifferences:
       - kind: Application
         group: argoproj.io
         jsonPointers:
-        - /spec/syncPolicy
+        - /spec/syncPolicy/automated
       project: default
       destination:
         server: {{ .Values.spec.destination.server }}
-        namespace: "openshift-gitops"
+        namespace: '{{ "{{" }} default .name .namespace {{ "}}" }}'
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
-          - ServerSideApply=true
-        retry:
-          limit: 10
-          backoff:
-            duration: 1m
-            factor: 2
-            maxDuration: 16m
       source:
         repoURL: {{ .Values.spec.source.repoURL }}
-        path: charts/security/{{ "{{" }} .name {{ "}}" }}
+        path: charts/{{ "{{" }} .group {{ "}}" }}/{{ "{{" }} .name {{ "}}" }}
         targetRevision: {{ .Values.spec.source.targetRevision }}
         helm:
           valuesObject:
             spec:
 {{ .Values.spec | toYaml | nindent 14 }}
 {{ .Values.config | toYaml | nindent 12 }}
+{{- if .Values.cluster }}
+            cluster:
+{{ .Values.cluster | toYaml | nindent 14 }}
+{{- end }}

@@ -1,9 +1,9 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: {{ .Release.Name }}-security
+  name: {{ .Release.Name }}-tweaks
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "200"
 spec:
   ignoreApplicationDifferences:
     - jsonPointers:
@@ -12,7 +12,20 @@ spec:
   generators:
     - list:
         elements:
-          - name: external-secrets-operator
+        {{- if index .Values "snapshot-finalizer-remover" "enabled" }}
+        - name: snapshot-finalizer-remover
+          group: tweaks
+        {{- end }}
+        {{- if index .Values "disable-master-secondary-interfaces" "enabled" }}
+        - name: disable-master-secondary-interfaces
+          group: tweaks
+          createNamespace: false
+        {{- end }}
+        {{- if index .Values "disable-worker-secondary-interfaces" "enabled" }}
+        - name: disable-worker-secondary-interfaces
+          group: tweaks
+          createNamespace: false
+        {{- end }}
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'
@@ -31,18 +44,9 @@ spec:
         automated:
           prune: true
           selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
-        retry:
-          limit: 10
-          backoff:
-            duration: 1m
-            factor: 2
-            maxDuration: 16m
       source:
         repoURL: {{ .Values.spec.source.repoURL }}
-        path: charts/security/{{ "{{" }} .name {{ "}}" }}
+        path: charts/{{ "{{" }} .group {{ "}}" }}/{{ "{{" }} .name {{ "}}" }}
         targetRevision: {{ .Values.spec.source.targetRevision }}
         helm:
           valuesObject:

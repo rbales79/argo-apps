@@ -44,3 +44,24 @@ openshift-nfd:
 
 system-reservation:
   enabled: false  # Enable if needed for system resource reservation
+
+# Security components (sync-wave: 0)
+external-secrets-operator:
+  enabled: true
+
+# Storage components (sync-wave: 50)
+synology:
+  enabled: false  # Enable if using Synology NAS
+
+truenas:
+  enabled: false  # Enable if using TrueNAS storage
+
+# Tweaks (sync-wave: 100)
+snapshot-finalizer-remover:
+  enabled: true
+
+disable-master-secondary-interfaces:
+  enabled: false
+
+disable-worker-secondary-interfaces:
+  enabled: false
