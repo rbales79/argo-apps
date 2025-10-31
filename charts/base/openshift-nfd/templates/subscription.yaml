@@ -2,6 +2,8 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
   name: nfd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
   labels:
     app.kubernetes.io/instance: node-feature-discovery-operator
     operators.coreos.com/nfd.openshift-nfd: ''

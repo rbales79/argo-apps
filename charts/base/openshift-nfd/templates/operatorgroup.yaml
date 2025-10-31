@@ -3,6 +3,8 @@ kind: OperatorGroup
 metadata:
   generateName: openshift-nfd-
   name: openshift-nfd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   targetNamespaces:
     - {{ .Release.Namespace }}
