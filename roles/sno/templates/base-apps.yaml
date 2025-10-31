@@ -12,27 +12,27 @@ spec:
   generators:
     - list:
         elements:
-        - name: certificates
-          group: infrastructure
-        - name: custom-error-pages
-          group: infrastructure
-          createNamespace: false
-        - name: emqx-operator
-          group: infrastructure
-        #- name: generic-device-plugin
-        #  group: infrastructure
-        - name: goldilocks
-          group: infrastructure
-        - name: gatus
-          group: infrastructure
-        - name: k10-kasten-operator
-          group: infrastructure
-          createNamespace: false
-#        - name: openshift-nfd
-#          group: infrastructure
-        #- name: system-reservation
-        #  group: infrastructure
-        #  createNamespace: false
+          - name: certificates
+            group: base
+          - name: custom-error-pages
+            group: base
+            createNamespace: false
+          - name: goldilocks
+            group: base
+          - name: gatus
+            group: base
+          - name: keepalived-operator
+            group: base
+          - name: k10-kasten-operator
+            group: base
+            createNamespace: false
+          #- name: generic-device-plugin
+          #  group: base
+          #- name: openshift-nfd
+          #  group: base
+          #- name: system-reservation
+          #  group: base
+          #  createNamespace: false
   template:
     metadata:
       name: '{{ "{{" }} .name {{ "}}" }}'

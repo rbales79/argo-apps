@@ -1,9 +1,0 @@
-apiVersion: v2
-description: Base cluster components required for all OpenShift clusters
-name: base
-version: 1.0.0
-kubeVersion: ">=1.22.0-0"
-
-maintainers:
-  - name: Roy Bales
-    email: rbales79@gmail.com
