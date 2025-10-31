@@ -54,6 +54,8 @@ spec:
               value: "WATCH"
             - name: SKIP_TLS_VERIFY
               value: "true"
+            - name: REQ_PROTOCOL
+              value: "https"
           restartPolicy: Always
           resources:
             requests:
