@@ -16,6 +16,7 @@ application:
   port: 8080
 
 pods:
+  replicas: 1  # Single instance for lab environment
   main:
     image:
       repository: ghcr.io/ullbergm/startpunkt

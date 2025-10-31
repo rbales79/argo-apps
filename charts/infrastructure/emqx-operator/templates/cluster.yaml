@@ -46,7 +46,7 @@ spec:
             storage: 1Gi
         accessModes:
         - ReadWriteOnce
-      replicas: 3
+      replicas: {{ .Values.emqx.replicas | default 1 }}
       envFrom:
         - secretRef:
             name: {{ .Release.Name }}

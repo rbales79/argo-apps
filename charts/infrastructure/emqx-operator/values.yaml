@@ -22,8 +22,10 @@ application:
   tags: admin
 
 emqx:
+  # EMQX cluster configuration
+  replicas: 1  # Single instance for development/lab environment
   network:
-    ip: 192.168.1.11
+    ip: 192.168.10.11
 
 emqx-operator:
   # Operator configuration
