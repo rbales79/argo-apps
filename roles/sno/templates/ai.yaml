@@ -54,8 +54,8 @@ spec:
 {{ .Values.spec | toYaml | nindent 14 }}
 {{ .Values.config | toYaml | nindent 12 }}
             gatus:
-              enabled: {{ "{{" }} default false .gatus.enabled {{ "}}" }}
-              interval: {{ "{{" }} default "5m" .gatus.interval {{ "}}" }}
+              enabled: '{{ "{{" }} default false .gatus.enabled {{ "}}" }}'
+              interval: '{{ "{{" }} default "5m" .gatus.interval {{ "}}" }}'
               conditions:
                 - "[STATUS] == 200"
                 - "[RESPONSE_TIME] < 3000"
