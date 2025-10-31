@@ -19,23 +19,31 @@ spec:
         - |
           echo "Waiting for External Secrets Operator to be ready..."
 
-          # Wait for the operator deployment to exist and be ready
+          # Check if ESO CRDs are available (works whether ESO is freshly deployed or already running)
           for i in {1..60}; do
-            if oc get deployment -n external-secrets-operator external-secrets-operator 2>/dev/null; then
-              echo "External Secrets Operator deployment found, checking rollout status..."
-              if oc rollout status deployment/external-secrets-operator -n external-secrets-operator --timeout=5m; then
-                echo "External Secrets Operator is ready!"
-                break
+            if oc get crd externalsecrets.external-secrets.io 2>/dev/null && \
+               oc get crd secretstores.external-secrets.io 2>/dev/null && \
+               oc get crd clustersecretstores.external-secrets.io 2>/dev/null; then
+              echo "External Secrets Operator CRDs are available!"
+              
+              # Optional: Check if operator pods are running (handles both fresh install and existing)
+              if oc get pods -n external-secrets-operator 2>/dev/null | grep -q "Running\|Completed"; then
+                echo "External Secrets Operator pods are running"
+              else
+                echo "No ESO pods found, but CRDs are available (operator may be cluster-scoped)"
               fi
+              
+              # Brief stabilization delay
+              echo "Waiting 30 seconds for CRDs to stabilize..."
+              sleep 30
+              echo "ESO readiness check complete, proceeding to storage deployment"
+              exit 0
             fi
-            echo "Waiting for External Secrets Operator... (attempt $i/60)"
+            echo "Waiting for External Secrets Operator CRDs... (attempt $i/60)"
             sleep 5
           done
 
-          # Additional delay to ensure CRDs are fully registered
-          echo "Waiting additional 2 minutes for CRDs to stabilize..."
-          sleep 120
-
-          echo "ESO readiness check complete, proceeding to storage deployment"
+          echo "ERROR: External Secrets Operator CRDs not available after 5 minutes"
+          exit 1
       restartPolicy: Never
   backoffLimit: 3
