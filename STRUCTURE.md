@@ -24,10 +24,10 @@ Cluster-specific configurations that define which functional roles are enabled:
 Application Helm charts organized by functional domain:
 
 - **`base/`** - Core cluster components required by all clusters
-  - certificates, custom-error-pages, gatus, generic-device-plugin, goldilocks, k10-kasten-operator, openshift-nfd, system-reservation
+  - certificates, custom-error-pages, gatus, generic-device-plugin, goldilocks, k10-kasten-operator, keepalived-operator, openshift-nfd, system-reservation
 - **`ai/`** - AI/ML applications (LiteLLM, Ollama, Open-WebUI)
 - **`home-automation/`** - IoT and home automation (EMQX, Home Assistant, Node-RED, Z-Wave JS)
-- **`infrastructure/`** - Optional infrastructure (ACM, MCE, Keepalived, Intel GPU)
+- **`infrastructure/`** - Optional infrastructure (ACM, MCE, Intel GPU)
 - **`media/`** - Media server applications (Plex, Sonarr, Radarr, Jellyfin, etc.)
 - **`productivity/`** - Productivity tools (Terraform Enterprise, Startpunkt, etc.)
 - **`radio/`** - Radio/ADSB applications
@@ -45,6 +45,7 @@ All cluster types deploy these core components from `charts/base/`:
 - **generic-device-plugin** - Kubernetes device plugin for custom hardware
 - **goldilocks** - VPA recommendations for resource optimization
 - **k10-kasten-operator** - Veeam Kasten backup and disaster recovery
+- **keepalived-operator** - Virtual IP management for high availability
 - **openshift-nfd** - Node Feature Discovery for hardware detection
 - **system-reservation** - System resource reservation via MachineConfig
 
