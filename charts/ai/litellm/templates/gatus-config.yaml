@@ -1,9 +1,25 @@
+{{- if .Values.gatus.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: test-gatus-config
+  name: {{ .Release.Name }}-gatus-ep
   namespace: gatus
   labels:
     gatus.io/enabled: "true"
 data:
-  test: "value"
+  config.yaml: |
+    endpoints:
+      - name: {{ .Values.application.name }}
+        group: {{ .Values.application.group }}
+        url: "https://{{ .Release.Name }}.apps.{{ .Values.cluster.name }}.{{ .Values.cluster.top_level_domain }}"
+        interval: {{ .Values.gatus.interval }}
+        client:
+          insecure: false
+          timeout: 10s
+        conditions:
+          {{- range .Values.gatus.conditions }}
+          - {{ . | quote }}
+          {{- end }}
+        alerts:
+          - type: discord
+{{- end }}
