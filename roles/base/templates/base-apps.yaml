@@ -14,37 +14,29 @@ spec:
         elements:
         {{- if .Values.certificates.enabled }}
         - name: certificates
-          group: infrastructure
         {{- end }}
         {{- if index .Values "custom-error-pages" "enabled" }}
         - name: custom-error-pages
-          group: infrastructure
           createNamespace: false
         {{- end }}
         {{- if .Values.goldilocks.enabled }}
         - name: goldilocks
-          group: infrastructure
         {{- end }}
         {{- if .Values.gatus.enabled }}
         - name: gatus
-          group: infrastructure
         {{- end }}
         {{- if index .Values "k10-kasten-operator" "enabled" }}
         - name: k10-kasten-operator
-          group: infrastructure
           createNamespace: false
         {{- end }}
         {{- if index .Values "generic-device-plugin" "enabled" }}
         - name: generic-device-plugin
-          group: infrastructure
         {{- end }}
         {{- if index .Values "openshift-nfd" "enabled" }}
         - name: openshift-nfd
-          group: infrastructure
         {{- end }}
         {{- if index .Values "system-reservation" "enabled" }}
         - name: system-reservation
-          group: infrastructure
           createNamespace: false
         {{- end }}
   template:
