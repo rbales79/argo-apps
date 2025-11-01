@@ -20,16 +20,26 @@ spec:
         #- name: kavita
         #- name: lidarr
         - name: overseerr
+          gatus:
+            enabled: true
         #- name: metube
         #- name: pinchflat
-        - name: plex
+        #- name: plex
         #- name: posterizarr
         - name: prowlarr
+          gatus:
+            enabled: true
         - name: radarr
+          gatus:
+            enabled: true
         #- name: readarr
         #- name: recyclarr
         - name: sabnzbd
+          gatus:
+            enabled: true
         - name: sonarr
+          gatus:
+            enabled: true
         #- name: tautulli
   template:
     metadata:

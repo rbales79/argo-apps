@@ -16,10 +16,10 @@ spec:
           #  group: storage
           #  appName: cluster-synology
           #  namespace: democratic-csi
-          #- name: truenas
-          #  group: storage
-          #  appName: cluster-truenas
-          #  namespace: democratic-csi
+          - name: truenas
+            group: storage
+            appName: cluster-truenas
+            namespace: democratic-csi
   template:
     metadata:
       name: '{{ "{{" }} default .name .appName {{ "}}" }}'
