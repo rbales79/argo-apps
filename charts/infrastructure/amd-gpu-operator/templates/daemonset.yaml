@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: amd-gpu-device-plugin
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: amd-gpu-device-plugin
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: amd-gpu-device-plugin
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: amd-gpu-device-plugin
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- with .Values.amdGpuPlugin.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.amdGpuPlugin.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.amdGpuPlugin.priorityClassName }}
+      priorityClassName: {{ .Values.amdGpuPlugin.priorityClassName }}
+      {{- end }}
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: amd-gpu-device-plugin
+        image: "{{ .Values.amdGpuPlugin.image.repository }}:{{ .Values.amdGpuPlugin.image.tag }}"
+        imagePullPolicy: {{ .Values.amdGpuPlugin.image.pullPolicy }}
+        env:
+        - name: ROCM_VISIBLE_DEVICES
+          value: "{{ .Values.amdGpuPlugin.rocmVisibleDevices }}"
+        - name: DP_RESOURCE_NAME
+          value: "{{ .Values.amdGpuPlugin.resourceName }}"
+        - name: DP_LOG_LEVEL
+          value: "{{ .Values.amdGpuPlugin.logLevel }}"
+        securityContext:
+          {{- toYaml .Values.amdGpuPlugin.securityContext | nindent 10 }}
+        volumeMounts:
+        - name: device-plugin
+          mountPath: /var/lib/kubelet/device-plugins
+        - name: dev
+          mountPath: /dev
+        - name: sys
+          mountPath: /sys
+        resources:
+          {{- toYaml .Values.amdGpuPlugin.resources | nindent 10 }}
+      volumes:
+      - name: device-plugin
+        hostPath:
+          path: /var/lib/kubelet/device-plugins
+          type: Directory
+      - name: dev
+        hostPath:
+          path: /dev
+          type: Directory
+      - name: sys
+        hostPath:
+          path: /sys
+          type: Directory

@@ -1,0 +1,122 @@
+cluster:
+  top_level_domain: roybales.com
+  name: cluster
+  admin_email: rbales79@gmail.com
+  timezone: America/New_York
+
+application:
+  name: AMD GPU Operator
+  group: infrastructure
+  icon: mdi:chip
+  iconColor: "#ED1C24"
+  image: "https://upload.wikimedia.org/wikipedia/commons/7/7c/AMD_Logo.svg"
+  description: "AMD GPU Device Plugin for Kubernetes/OpenShift - enables GPU resource allocation and scheduling for AMD Radeon and Instinct GPUs"
+  port: 0
+  location: 50
+
+# AMD GPU Device Plugin Configuration
+amdGpuPlugin:
+  # Image configuration
+  image:
+    repository: rocm/k8s-device-plugin
+    # renovate: datasource=docker depName=rocm/k8s-device-plugin versioning=semver
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  # Resource naming
+  resourceName: "amd.com/gpu"
+
+  # Node selector to target nodes with AMD GPUs
+  nodeSelector:
+    # Set this label on nodes with AMD GPUs:
+    # kubectl label node <node-name> amd.feature.node.kubernetes.io/gpu=true
+    amd.feature.node.kubernetes.io/gpu: "true"
+
+  # Tolerations for GPU nodes
+  tolerations: []
+  #  - key: "gpu"
+  #    operator: "Equal"
+  #    value: "amd"
+  #    effect: "NoSchedule"
+
+  # Priority class for the device plugin
+  priorityClassName: "system-node-critical"
+
+  # Security context
+  securityContext:
+    privileged: true
+    allowPrivilegeEscalation: true
+
+  # Resource requests and limits for the plugin pod
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # ROCm device visibility (all devices by default)
+  # Can be set to specific device IDs: "0,1,2"
+  rocmVisibleDevices: "all"
+
+  # Logging level (0-5, higher is more verbose)
+  logLevel: 4
+
+# AMD GPU Node Labeller Configuration
+# Automatically discovers and labels nodes with GPU properties
+amdNodeLabeller:
+  # Enable node labeller deployment
+  enabled: true
+
+  # Image configuration
+  image:
+    repository: rocm/k8s-device-plugin
+    # renovate: datasource=docker depName=rocm/k8s-device-plugin versioning=semver
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  # Node selector - run on all nodes to discover GPUs
+  nodeSelector: {}
+  # To limit labeller to specific nodes:
+  #   kubernetes.io/hostname: gpu-node-1
+
+  # Tolerations to run on all nodes including GPU nodes
+  tolerations:
+    - operator: "Exists"
+
+  # Priority class for the labeller
+  priorityClassName: "system-node-critical"
+
+  # Security context
+  securityContext:
+    privileged: true
+    allowPrivilegeEscalation: true
+
+  # Resource requests and limits for the labeller pod
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+  # Labels to apply - default labels GPU properties like model, VRAM, etc.
+  # The labeller will automatically detect and apply these labels
+  enabledLabels:
+    - amd.com/gpu.family
+    - amd.com/gpu.vram
+    - amd.com/gpu.cu-count
+    - amd.com/gpu.simd-count
+    - amd.com/gpu.device-id
+    - amd.feature.node.kubernetes.io/gpu
+
+# Service Account for the device plugin and labeller
+serviceAccount:
+  create: true
+  name: amd-gpu-device-plugin
+  annotations: {}
+
+# Namespace configuration
+namespace: kube-system

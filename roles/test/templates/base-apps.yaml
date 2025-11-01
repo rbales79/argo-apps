@@ -33,7 +33,7 @@ spec:
             group: base
           - name: openshift-nfd
             group: base
-          - name: system-reservation
+          - name: system-reservation # causes a system reboot
             group: base
             createNamespace: false
   template:

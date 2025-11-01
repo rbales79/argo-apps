@@ -1,0 +1,81 @@
+{{- if .Values.amdNodeLabeller.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: amd-gpu-node-labeller
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: amd-gpu-node-labeller
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: node-labeller
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: amd-gpu-node-labeller
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: amd-gpu-node-labeller
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: node-labeller
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- with .Values.amdNodeLabeller.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.amdNodeLabeller.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.amdNodeLabeller.priorityClassName }}
+      priorityClassName: {{ .Values.amdNodeLabeller.priorityClassName }}
+      {{- end }}
+      hostNetwork: false
+      hostPID: false
+      containers:
+      - name: amd-gpu-node-labeller
+        image: "{{ .Values.amdNodeLabeller.image.repository }}:{{ .Values.amdNodeLabeller.image.tag }}"
+        imagePullPolicy: {{ .Values.amdNodeLabeller.image.pullPolicy }}
+        command:
+        - /k8s-node-labeller
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        {{- if .Values.amdNodeLabeller.enabledLabels }}
+        - name: ENABLED_LABELS
+          value: {{ join "," .Values.amdNodeLabeller.enabledLabels | quote }}
+        {{- end }}
+        - name: LOG_LEVEL
+          value: "4"
+        securityContext:
+          {{- toYaml .Values.amdNodeLabeller.securityContext | nindent 10 }}
+        volumeMounts:
+        - name: sys
+          mountPath: /sys
+          readOnly: true
+        - name: dev
+          mountPath: /dev
+          readOnly: true
+        resources:
+          {{- toYaml .Values.amdNodeLabeller.resources | nindent 10 }}
+      volumes:
+      - name: sys
+        hostPath:
+          path: /sys
+          type: Directory
+      - name: dev
+        hostPath:
+          path: /dev
+          type: Directory
+{{- end }}
