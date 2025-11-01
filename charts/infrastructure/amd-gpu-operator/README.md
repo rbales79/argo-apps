@@ -147,7 +147,7 @@ amdGpuPlugin:
 
 ```yaml
 amdNodeLabeller:
-  enabled: false  # Disabled by default - manual labelling required
+  enabled: false # Disabled by default - manual labelling required
 ```
 
 **To label nodes manually:**

@@ -110,3 +110,18 @@ config:
         limits:
           cpu: 500m
           memory: 256Mi
+
+  # AMD GPU Operator Configuration
+  amdGpuOperator:
+    # Node labeling configuration for AMD GPU support
+    nodeLabeling:
+      # Enable automatic node labeling
+      enabled: true
+      # Label specific nodes by name
+      nodeNames:
+        - test  # Single node test cluster
+      # Additional labels for Radeon Vega 8 integrated GPU
+      additionalLabels:
+        amd.com/gpu.family: gfx902
+        amd.com/gpu.model: RadeonVega8
+        amd.com/gpu.type: integrated

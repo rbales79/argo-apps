@@ -63,10 +63,34 @@ amdGpuPlugin:
   # Logging level (0-5, higher is more verbose)
   logLevel: 4
 
-# AMD GPU Node Labeller Configuration
-# Automatically discovers and labels nodes with GPU properties
-# NOTE: The rocm/k8s-device-plugin image does not include a separate node labeller binary.
-# Node labelling must be done manually. Set this to false to avoid CreateContainerError.
+# Node Labeling Configuration
+# Automatically label nodes to enable AMD GPU device plugin deployment
+nodeLabeling:
+  # Enable automatic node labeling via Kubernetes Job
+  enabled: false
+
+  # Label specific nodes by name (leave empty to label all nodes)
+  nodeNames: []
+  # Example:
+  # - node1
+  # - node2
+
+  # Or label nodes matching a selector (takes precedence over nodeNames if both specified)
+  nodeSelector: {}
+  # Example:
+  #   node-role.kubernetes.io/worker: ""
+  #   kubernetes.io/hostname: gpu-node
+
+  # Additional labels to apply alongside amd.feature.node.kubernetes.io/gpu=true
+  additionalLabels: {}
+  # Example:
+  #   amd.com/gpu.family: gfx902
+  #   amd.com/gpu.model: RadeonVega8
+  #   amd.com/gpu.type: integrated
+
+# AMD GPU Node Labeller Configuration (DaemonSet-based - NOT FUNCTIONAL)
+# The rocm/k8s-device-plugin image does not include a separate node labeller binary.
+# Use nodeLabeling.enabled instead for Job-based labeling.
 amdNodeLabeller:
   # Enable node labeller deployment
   enabled: false

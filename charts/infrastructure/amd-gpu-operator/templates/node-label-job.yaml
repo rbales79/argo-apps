@@ -1,0 +1,117 @@
+{{- $nodeLabeling := .Values.nodeLabeling }}
+{{- if .Values.amdGpuOperator }}
+{{- if .Values.amdGpuOperator.nodeLabeling }}
+{{- $nodeLabeling = .Values.amdGpuOperator.nodeLabeling }}
+{{- end }}
+{{- end }}
+{{- if $nodeLabeling.enabled }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: amd-gpu-device-plugin-labeler
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: amd-gpu-device-plugin-labeler
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: amd-gpu-device-plugin-labeler
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: amd-gpu-device-plugin-labeler
+subjects:
+  - kind: ServiceAccount
+    name: amd-gpu-device-plugin-labeler
+    namespace: {{ .Values.namespace }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: amd-gpu-node-labeler-{{ .Release.Revision | default "1" }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: amd-gpu-node-labeler
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      serviceAccountName: amd-gpu-device-plugin-labeler
+      restartPolicy: OnFailure
+      containers:
+        - name: node-labeler
+          image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "Starting AMD GPU node labeling..."
+
+              # Install kubectl
+              curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+              chmod +x kubectl
+              {{- if $nodeLabeling.nodeSelector }}
+
+              # Label specific nodes based on selector
+              {{- range $key, $value := $nodeLabeling.nodeSelector }}
+              echo "Labeling nodes matching {{ $key }}={{ $value }}..."
+              ./kubectl get nodes -l {{ $key }}={{ $value }} -o name | while read node; do
+                echo "Labeling $node..."
+                ./kubectl label $node amd.feature.node.kubernetes.io/gpu=true --overwrite
+                {{- range $labelKey, $labelValue := $nodeLabeling.additionalLabels }}
+                ./kubectl label $node {{ $labelKey }}={{ $labelValue }} --overwrite
+                {{- end }}
+                echo "Successfully labeled $node"
+              done
+              {{- end }}
+              {{- end }}
+              {{- if $nodeLabeling.nodeNames }}
+
+              # Label specific nodes by name
+              {{- range $nodeName := $nodeLabeling.nodeNames }}
+              echo "Labeling node {{ $nodeName }}..."
+              ./kubectl label node {{ $nodeName }} amd.feature.node.kubernetes.io/gpu=true --overwrite
+              {{- range $labelKey, $labelValue := $nodeLabeling.additionalLabels }}
+              ./kubectl label node {{ $nodeName }} {{ $labelKey }}={{ $labelValue }} --overwrite
+              {{- end }}
+              echo "Successfully labeled {{ $nodeName }}"
+              {{- end }}
+              {{- end }}
+              {{- if and (not $nodeLabeling.nodeSelector) (not $nodeLabeling.nodeNames) }}
+
+              # Label all nodes
+              echo "Labeling all nodes..."
+              ./kubectl get nodes -o name | while read node; do
+                echo "Labeling $node..."
+                ./kubectl label $node amd.feature.node.kubernetes.io/gpu=true --overwrite
+                {{- range $labelKey, $labelValue := $nodeLabeling.additionalLabels }}
+                ./kubectl label $node {{ $labelKey }}={{ $labelValue }} --overwrite
+                {{- end }}
+                echo "Successfully labeled $node"
+              done
+              {{- end }}
+
+              echo "Node labeling complete!"
+{{- end }}
