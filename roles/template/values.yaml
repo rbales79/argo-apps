@@ -53,3 +53,63 @@ config:
   network:
     lan:
       defaultGateway: 192.168.1.1
+
+  # ArgoCD Resource Configuration
+  # Configure resource limits for OpenShift GitOps components
+  # Increase these values for clusters managing many applications
+  argocd:
+    enabled: true
+    # Application Controller - Main reconciliation engine
+    controller:
+      resources:
+        requests:
+          cpu: 500m
+          memory: 2Gi
+        limits:
+          cpu: "4"
+          memory: 8Gi
+    # ApplicationSet Controller - Manages ApplicationSets
+    applicationSet:
+      resources:
+        requests:
+          cpu: 250m
+          memory: 512Mi
+        limits:
+          cpu: "2"
+          memory: 1Gi
+    # Repo Server - Git repository operations
+    repo:
+      resources:
+        requests:
+          cpu: 250m
+          memory: 512Mi
+        limits:
+          cpu: "1"
+          memory: 1Gi
+    # Server - API and UI
+    server:
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+    # Redis - Caching
+    redis:
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+    # Dex - SSO/OAuth
+    dex:
+      resources:
+        requests:
+          cpu: 250m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi

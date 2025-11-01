@@ -1,0 +1,76 @@
+{{- if .Values.config.argocd.enabled }}
+---
+# ArgoCD Resource Configuration
+# This patches the OpenShift GitOps ArgoCD instance with appropriate resource limits
+# to handle large-scale deployments without OOM crashes.
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: openshift-gitops
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: "SkipDryRunOnMissingResource=true"
+spec:
+  # Application Controller - Manages application state and reconciliation
+  controller:
+    resources:
+      requests:
+        cpu: {{ .Values.config.argocd.controller.resources.requests.cpu }}
+        memory: {{ .Values.config.argocd.controller.resources.requests.memory }}
+      limits:
+        cpu: {{ .Values.config.argocd.controller.resources.limits.cpu }}
+        memory: {{ .Values.config.argocd.controller.resources.limits.memory }}
+    processors: {}
+    sharding: {}
+
+  # ApplicationSet Controller - Manages ApplicationSets
+  applicationSet:
+    resources:
+      requests:
+        cpu: {{ .Values.config.argocd.applicationSet.resources.requests.cpu }}
+        memory: {{ .Values.config.argocd.applicationSet.resources.requests.memory }}
+      limits:
+        cpu: {{ .Values.config.argocd.applicationSet.resources.limits.cpu }}
+        memory: {{ .Values.config.argocd.applicationSet.resources.limits.memory }}
+
+  # Repo Server - Handles Git repository operations
+  repo:
+    resources:
+      requests:
+        cpu: {{ .Values.config.argocd.repo.resources.requests.cpu }}
+        memory: {{ .Values.config.argocd.repo.resources.requests.memory }}
+      limits:
+        cpu: {{ .Values.config.argocd.repo.resources.limits.cpu }}
+        memory: {{ .Values.config.argocd.repo.resources.limits.memory }}
+
+  # Server - Provides API and UI
+  server:
+    resources:
+      requests:
+        cpu: {{ .Values.config.argocd.server.resources.requests.cpu }}
+        memory: {{ .Values.config.argocd.server.resources.requests.memory }}
+      limits:
+        cpu: {{ .Values.config.argocd.server.resources.limits.cpu }}
+        memory: {{ .Values.config.argocd.server.resources.limits.memory }}
+
+  # Redis - Caching layer
+  redis:
+    resources:
+      requests:
+        cpu: {{ .Values.config.argocd.redis.resources.requests.cpu }}
+        memory: {{ .Values.config.argocd.redis.resources.requests.memory }}
+      limits:
+        cpu: {{ .Values.config.argocd.redis.resources.limits.cpu }}
+        memory: {{ .Values.config.argocd.redis.resources.limits.memory }}
+
+  # Dex - SSO/OAuth integration
+  dex:
+    resources:
+      requests:
+        cpu: {{ .Values.config.argocd.dex.resources.requests.cpu }}
+        memory: {{ .Values.config.argocd.dex.resources.requests.memory }}
+      limits:
+        cpu: {{ .Values.config.argocd.dex.resources.limits.cpu }}
+        memory: {{ .Values.config.argocd.dex.resources.limits.memory }}
+{{- end }}

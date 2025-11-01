@@ -284,7 +284,68 @@ config:
     service_network: 172.30.0.0/16
 ```
 
+## Resource Configuration
+
+### Argo CD Performance Tuning
+
+This repository automatically configures Argo CD resource limits to handle large-scale deployments without crashes. The configuration is deployed as part of the bootstrap process (sync-wave: -1) and includes optimized settings for:
+
+- **Application Controller**: 8Gi memory limit (prevents OOM when managing 25+ applications)
+- **ApplicationSet Controller**: 1Gi memory limit
+- **Repo Server**: 1Gi memory limit
+- **Server, Redis, Dex**: Standard limits for typical workloads
+
+These settings are defined in each role's `values.yaml` under `config.argocd` and can be adjusted based on your cluster's capacity and the number of applications being managed.
+
+**To disable auto-configuration** (e.g., if using custom ArgoCD instance):
+
+```yaml
+# In roles/<cluster>/values.yaml
+config:
+  argocd:
+    enabled: false # Disables automatic resource configuration
+```
+
+**To customize resource limits** for your specific needs:
+
+```yaml
+# In roles/<cluster>/values.yaml
+config:
+  argocd:
+    enabled: true
+    controller:
+      resources:
+        limits:
+          cpu: "8" # Increase for very large clusters
+          memory: 16Gi # Increase if managing 50+ applications
+```
+
+The template file `roles/<cluster>/templates/argocd-resource-config.yaml` applies these settings automatically during bootstrap.
+
 ## Troubleshooting
+
+### Argo CD Application Controller Crashing (OOMKilled)
+
+**Symptom:** `openshift-gitops-application-controller-0` pod in CrashLoopBackOff, logs show OOMKilled (exit code 137)
+
+**Cause:** Insufficient memory when managing many applications simultaneously (typically 25+ applications)
+
+**Solution:** This is automatically configured in this repository. If using a custom setup, increase resources:
+
+```bash
+oc patch argocd openshift-gitops -n openshift-gitops --type=merge -p '{
+  "spec": {
+    "controller": {
+      "resources": {
+        "requests": { "cpu": "500m", "memory": "2Gi" },
+        "limits": { "cpu": "4", "memory": "8Gi" }
+      }
+    }
+  }
+}'
+```
+
+Delete the pod to force recreation: `oc delete pod openshift-gitops-application-controller-0 -n openshift-gitops`
 
 ### ApplicationSet Not Creating Applications
 
