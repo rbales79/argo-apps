@@ -65,9 +65,11 @@ amdGpuPlugin:
 
 # AMD GPU Node Labeller Configuration
 # Automatically discovers and labels nodes with GPU properties
+# NOTE: The rocm/k8s-device-plugin image does not include a separate node labeller binary.
+# Node labelling must be done manually. Set this to false to avoid CreateContainerError.
 amdNodeLabeller:
   # Enable node labeller deployment
-  enabled: true
+  enabled: false
 
   # Image configuration
   image:

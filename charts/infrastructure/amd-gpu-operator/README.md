@@ -98,9 +98,11 @@ helm install amd-gpu-operator ./charts/infrastructure/amd-gpu-operator \
 
 #### Node Labeller Configuration
 
+**Note:** The AMD ROCm device plugin image does not include a separate node labeller binary. Node labelling must be done manually. The node labeller is disabled by default.
+
 | Parameter                          | Description                           | Default                       |
 | ---------------------------------- | ------------------------------------- | ----------------------------- |
-| `amdNodeLabeller.enabled`          | Enable automatic node labelling       | `true`                        |
+| `amdNodeLabeller.enabled`          | Enable automatic node labelling       | `false` (not supported)       |
 | `amdNodeLabeller.image.repository` | Node labeller image                   | `rocm/k8s-device-plugin`      |
 | `amdNodeLabeller.image.tag`        | Image tag                             | `latest`                      |
 | `amdNodeLabeller.nodeSelector`     | Node selector for labeller deployment | `{}` (runs on all nodes)      |
@@ -139,27 +141,31 @@ amdGpuPlugin:
       memory: 1Gi
 ```
 
-#### Disable Node Labeller (Manual Labelling)
+#### Manual Node Labelling Required
 
-If you want to manage node labels yourself:
-
-```yaml
-amdNodeLabeller:
-  enabled: false
-```
-
-#### Customize Node Labels
-
-Select which GPU properties to label:
+**The node labeller is not functional** as the ROCm device plugin image doesn't include the labeller binary. Node labelling must be done manually (default configuration):
 
 ```yaml
 amdNodeLabeller:
-  enabled: true
-  enabledLabels:
-    - amd.com/gpu.family
-    - amd.com/gpu.vram
-    - amd.feature.node.kubernetes.io/gpu
+  enabled: false  # Disabled by default - manual labelling required
 ```
+
+**To label nodes manually:**
+
+```bash
+# Label a node to enable AMD GPU device plugin
+kubectl label node <node-name> amd.feature.node.kubernetes.io/gpu=true
+
+# Optional: Add additional GPU information labels
+kubectl label node <node-name> \
+  amd.com/gpu.family=gfx1030 \
+  amd.com/gpu.vram=8GB \
+  amd.com/gpu.device-id=73ff
+```
+
+**Using Node Feature Discovery (NFD):**
+
+You can also use NFD with custom rules to automatically label nodes with AMD GPUs. See the NFD documentation for PCI device detection rules.
 
 ## Usage
 
