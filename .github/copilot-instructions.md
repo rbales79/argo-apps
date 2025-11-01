@@ -91,6 +91,59 @@ Purpose: Provide just enough project-specific context so an AI agent can make co
 - Before removing a chart or role, ensure a pruning path (role disabled) is clearly documented in PR description.
 - Keep YAML indentation and style consistent with existing charts.
 
+## Multi-Cluster Management
+
+This workspace supports managing multiple OpenShift clusters simultaneously via cluster management functions (sourced from `.devcontainer/cluster-management.sh`).
+
+### Available Clusters
+
+- **sno** - Single Node OpenShift (production)
+- **hub** - Hub/management cluster
+- **test** - Testing cluster
+
+### Cluster Context Commands
+
+**CRITICAL: Always validate cluster context before troubleshooting or making changes.**
+
+- **Switch clusters:** `hub`, `test`, or `sno` (shorthand functions)
+- **Check current cluster:** `current` or `current-cluster`
+- **Check all cluster status:** `status` or `cluster-status`
+- **List kubeconfigs:** `clusters`
+
+### AI Assistant Protocol
+
+**Before executing any `oc` or `kubectl` commands:**
+
+1. **Always check current cluster context first** using `current-cluster` or by checking `$KUBECONFIG`
+2. **Confirm with user** if the target cluster is correct for the operation
+3. **Warn user** if no cluster is selected or if cluster connectivity fails
+4. **Suggest switching** if user's intent implies a different cluster (e.g., asking about "sno" apps while connected to "hub")
+
+**When troubleshooting issues:**
+
+- Run `current-cluster` to verify which cluster is active
+- If operation fails with connectivity errors, run `cluster-status` to check all clusters
+- Include cluster name in all diagnostic outputs: "Checking pods on **sno** cluster..."
+- If user doesn't specify cluster, ask which cluster they want to investigate
+
+**Example interaction pattern:**
+
+```
+User: "check if litellm is running"
+Assistant: First, let me verify which cluster we're connected to...
+[runs: current-cluster]
+Assistant: We're currently on the **sno** cluster. Checking litellm status...
+[runs: oc get pods -n litellm]
+```
+
+### Multi-Cluster Context Validation
+
+When user requests operations that could affect multiple clusters:
+
+- **Explicitly state** which cluster will be affected
+- **Ask for confirmation** before making changes across clusters
+- **Use cluster-specific commands** when iterating (e.g., save/restore `$KUBECONFIG`)
+
 ## Typical Commands (for human validation)
 
 - **Render ApplicationSet for a cluster:** `helm template <cluster-name> ./roles/<cluster> -s templates/<category>.yaml`
@@ -104,11 +157,17 @@ Purpose: Provide just enough project-specific context so an AI agent can make co
 
 - "add a chart" / "create a chart" → follow `.github/instructions/adding-a-role.instructions.md` (note: this is partially outdated)
 - "add app <name>" → perform application checklist above (add to appropriate ApplicationSet)
-- "troubleshoot <app>" → check pod logs, route configuration, external secrets, PVC status
+- "troubleshoot <app>" → **FIRST run `current-cluster` to validate context**, then check pod logs, route configuration, external secrets, PVC status
+- "check <app>" / "is <app> running" → **FIRST run `current-cluster`**, then check pod status
+- "switch to <cluster>" / "use <cluster>" → run appropriate cluster switch command (`hub`, `test`, or `sno`)
+- "what cluster am I on" / "current cluster" → run `current-cluster`
+- "show all clusters" / "cluster status" → run `cluster-status`
 - "fix Home Assistant 400 error" or similar reverse proxy issues → check HTTP config for `use_x_forwarded_for` and `trusted_proxies`
+- Any `oc` or `kubectl` command request → **FIRST verify cluster context with `current-cluster`**, confirm with user if needed
 
 ## Common Pitfalls
 
+- **Not validating cluster context:** ALWAYS run `current-cluster` before executing `oc`/`kubectl` commands. Troubleshooting the wrong cluster wastes time and can cause confusion.
 - **Forgetting to add app to ApplicationSet:** New apps won't be deployed unless added to the appropriate `generators.list.elements` in the ApplicationSet template.
 - **Only updating one cluster role:** Changes to ApplicationSets need to be made in ALL cluster roles (sno, hub, test) unless the change is truly cluster-specific.
 - **Hardcoding domain:** Always use `{{ .Values.cluster.top_level_domain }}` or similar value references instead of hardcoding domains.
