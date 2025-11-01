@@ -42,22 +42,42 @@ rocminfo
 
 ### 2. Node Labelling (Automatic or Manual)
 
-#### Option A: Automatic (Recommended)
+#### Option A: Automatic Node Labeling via Job (Recommended)
 
-The chart includes an AMD GPU Node Labeller that automatically discovers GPUs and labels nodes. It's enabled by default and will:
+The chart includes a Kubernetes Job that automatically labels nodes on deployment:
 
-- Detect AMD GPUs on all nodes
-- Apply labels with GPU properties (family, VRAM, compute units)
-- Automatically add the required `amd.feature.node.kubernetes.io/gpu=true` label
+```yaml
+nodeLabeling:
+  enabled: true
+  nodeNames:
+    - gpu-node-1
+    - gpu-node-2
+  additionalLabels:
+    amd.com/gpu.family: gfx902
+    amd.com/gpu.model: RadeonVega8
+    amd.com/gpu.type: integrated
+```
 
-No manual action required when using the node labeller!
+Features:
+- **Automatic**: Runs as an Argo CD sync hook during deployment
+- **Flexible targeting**: Label all nodes, specific nodes by name, or nodes matching a selector
+- **Custom labels**: Add GPU-specific labels (family, model, type, etc.)
+- **GitOps-friendly**: Configured via Helm values in your role's `values.yaml`
+- **Clean up**: Job pods are automatically removed after 5 minutes
+
+See [Node Labeling Configuration](#node-labeling-configuration) below for detailed options.
 
 #### Option B: Manual Labelling
 
-If you disable the node labeller (`amdNodeLabeller.enabled: false`), manually label nodes:
+If you disable automatic labeling (`nodeLabeling.enabled: false`), manually label nodes:
 
 ```bash
 kubectl label node <node-name> amd.feature.node.kubernetes.io/gpu=true
+# Optionally add GPU metadata
+kubectl label node <node-name> \
+  amd.com/gpu.family=gfx902 \
+  amd.com/gpu.model=RadeonVega8 \
+  amd.com/gpu.type=integrated
 ```
 
 You can also use Node Feature Discovery (NFD) with custom rules.
@@ -96,18 +116,60 @@ helm install amd-gpu-operator ./charts/infrastructure/amd-gpu-operator \
 | `amdGpuPlugin.rocmVisibleDevices` | Which GPUs to expose                | `all`                                        |
 | `amdGpuPlugin.logLevel`           | Logging verbosity (0-5)             | `4`                                          |
 
-#### Node Labeller Configuration
+#### Node Labeling Configuration
 
-**Note:** The AMD ROCm device plugin image does not include a separate node labeller binary. Node labelling must be done manually. The node labeller is disabled by default.
+Configure automatic node labeling via Kubernetes Job:
+
+| Parameter                         | Description                                               | Default |
+| --------------------------------- | --------------------------------------------------------- | ------- |
+| `nodeLabeling.enabled`            | Enable automatic node labeling                            | `false` |
+| `nodeLabeling.nodeNames`          | List of specific node names to label                      | `[]`    |
+| `nodeLabeling.nodeSelector`       | Label nodes matching this selector (takes precedence)     | `{}`    |
+| `nodeLabeling.additionalLabels`   | Additional labels to apply (GPU family, model, type, etc) | `{}`    |
+
+**Examples:**
+
+Label specific nodes:
+```yaml
+nodeLabeling:
+  enabled: true
+  nodeNames:
+    - node1
+    - node2
+  additionalLabels:
+    amd.com/gpu.family: gfx902
+    amd.com/gpu.model: RadeonVega8
+```
+
+Label nodes matching a selector:
+```yaml
+nodeLabeling:
+  enabled: true
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+    kubernetes.io/hostname: gpu-node
+  additionalLabels:
+    amd.com/gpu.family: gfx90a
+    amd.com/gpu.type: discrete
+```
+
+Label all nodes:
+```yaml
+nodeLabeling:
+  enabled: true  # No nodeNames or nodeSelector = all nodes
+  additionalLabels:
+    amd.com/gpu.family: gfx1030
+```
+
+#### Node Labeller Configuration (DaemonSet - Deprecated)
+
+**Note:** The AMD ROCm device plugin image does not include a separate node labeller binary. The DaemonSet-based node labeller is disabled by default and not functional. Use `nodeLabeling` (Job-based) instead.
 
 | Parameter                          | Description                           | Default                       |
 | ---------------------------------- | ------------------------------------- | ----------------------------- |
 | `amdNodeLabeller.enabled`          | Enable automatic node labelling       | `false` (not supported)       |
 | `amdNodeLabeller.image.repository` | Node labeller image                   | `rocm/k8s-device-plugin`      |
 | `amdNodeLabeller.image.tag`        | Image tag                             | `latest`                      |
-| `amdNodeLabeller.nodeSelector`     | Node selector for labeller deployment | `{}` (runs on all nodes)      |
-| `amdNodeLabeller.tolerations`      | Tolerations to run on tainted nodes   | `Exists` (runs on all nodes)  |
-| `amdNodeLabeller.enabledLabels`    | List of GPU property labels to apply  | See values.yaml for full list |
 
 #### General Configuration
 
@@ -141,20 +203,39 @@ amdGpuPlugin:
       memory: 1Gi
 ```
 
-#### Manual Node Labelling Required
+#### Automated Node Labeling
 
-**The node labeller is not functional** as the ROCm device plugin image doesn't include the labeller binary. Node labelling must be done manually (default configuration):
+Configure via role `values.yaml` for GitOps deployment:
 
 ```yaml
-amdNodeLabeller:
-  enabled: false # Disabled by default - manual labelling required
+# roles/test/values.yaml
+config:
+  amdGpuOperator:
+    nodeLabeling:
+      enabled: true
+      nodeNames:
+        - test  # Single node test cluster
+      additionalLabels:
+        amd.com/gpu.family: gfx902
+        amd.com/gpu.model: RadeonVega8
+        amd.com/gpu.type: integrated
 ```
 
-**To label nodes manually:**
+The ApplicationSet will pass these values to the chart, and the node labeling Job will run during sync.
+
+#### Manual Node Labelling (If Automatic is Disabled)
+
+If you set `nodeLabeling.enabled: false`, you must label nodes manually:
 
 ```bash
 # Label a node to enable AMD GPU device plugin
 kubectl label node <node-name> amd.feature.node.kubernetes.io/gpu=true
+
+# Optionally add GPU metadata
+kubectl label node <node-name> \
+  amd.com/gpu.family=gfx902 \
+  amd.com/gpu.model=RadeonVega8 \
+  amd.com/gpu.type=integrated
 
 # Optional: Add additional GPU information labels
 kubectl label node <node-name> \
