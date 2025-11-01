@@ -59,6 +59,7 @@ nodeLabeling:
 ```
 
 Features:
+
 - **Automatic**: Runs as an Argo CD sync hook during deployment
 - **Flexible targeting**: Label all nodes, specific nodes by name, or nodes matching a selector
 - **Custom labels**: Add GPU-specific labels (family, model, type, etc.)
@@ -120,16 +121,17 @@ helm install amd-gpu-operator ./charts/infrastructure/amd-gpu-operator \
 
 Configure automatic node labeling via Kubernetes Job:
 
-| Parameter                         | Description                                               | Default |
-| --------------------------------- | --------------------------------------------------------- | ------- |
-| `nodeLabeling.enabled`            | Enable automatic node labeling                            | `false` |
-| `nodeLabeling.nodeNames`          | List of specific node names to label                      | `[]`    |
-| `nodeLabeling.nodeSelector`       | Label nodes matching this selector (takes precedence)     | `{}`    |
-| `nodeLabeling.additionalLabels`   | Additional labels to apply (GPU family, model, type, etc) | `{}`    |
+| Parameter                       | Description                                               | Default |
+| ------------------------------- | --------------------------------------------------------- | ------- |
+| `nodeLabeling.enabled`          | Enable automatic node labeling                            | `false` |
+| `nodeLabeling.nodeNames`        | List of specific node names to label                      | `[]`    |
+| `nodeLabeling.nodeSelector`     | Label nodes matching this selector (takes precedence)     | `{}`    |
+| `nodeLabeling.additionalLabels` | Additional labels to apply (GPU family, model, type, etc) | `{}`    |
 
 **Examples:**
 
 Label specific nodes:
+
 ```yaml
 nodeLabeling:
   enabled: true
@@ -142,6 +144,7 @@ nodeLabeling:
 ```
 
 Label nodes matching a selector:
+
 ```yaml
 nodeLabeling:
   enabled: true
@@ -154,9 +157,10 @@ nodeLabeling:
 ```
 
 Label all nodes:
+
 ```yaml
 nodeLabeling:
-  enabled: true  # No nodeNames or nodeSelector = all nodes
+  enabled: true # No nodeNames or nodeSelector = all nodes
   additionalLabels:
     amd.com/gpu.family: gfx1030
 ```
@@ -165,11 +169,11 @@ nodeLabeling:
 
 **Note:** The AMD ROCm device plugin image does not include a separate node labeller binary. The DaemonSet-based node labeller is disabled by default and not functional. Use `nodeLabeling` (Job-based) instead.
 
-| Parameter                          | Description                           | Default                       |
-| ---------------------------------- | ------------------------------------- | ----------------------------- |
-| `amdNodeLabeller.enabled`          | Enable automatic node labelling       | `false` (not supported)       |
-| `amdNodeLabeller.image.repository` | Node labeller image                   | `rocm/k8s-device-plugin`      |
-| `amdNodeLabeller.image.tag`        | Image tag                             | `latest`                      |
+| Parameter                          | Description                     | Default                  |
+| ---------------------------------- | ------------------------------- | ------------------------ |
+| `amdNodeLabeller.enabled`          | Enable automatic node labelling | `false` (not supported)  |
+| `amdNodeLabeller.image.repository` | Node labeller image             | `rocm/k8s-device-plugin` |
+| `amdNodeLabeller.image.tag`        | Image tag                       | `latest`                 |
 
 #### General Configuration
 
@@ -214,7 +218,7 @@ config:
     nodeLabeling:
       enabled: true
       nodeNames:
-        - test  # Single node test cluster
+        - test # Single node test cluster
       additionalLabels:
         amd.com/gpu.family: gfx902
         amd.com/gpu.model: RadeonVega8
