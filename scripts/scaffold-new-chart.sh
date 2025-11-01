@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Scaffold a new chart by copying charts/media/sonarr and customizing.
+# Scaffold a new application chart by copying charts/media/sonarr and customizing.
+# This creates the chart structure but you must manually add it to ApplicationSet templates.
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
 SRC_CHART_DIR="$ROOT_DIR/charts/media/sonarr"
@@ -11,12 +12,28 @@ if [[ ! -d "$SRC_CHART_DIR" ]]; then
   exit 1
 fi
 
-echo "This wizard will scaffold a new chart based on Sonarr."
+echo "=========================================="
+echo "New Application Chart Scaffolding Wizard"
+echo "=========================================="
+echo ""
+echo "This will create a new Helm chart based on the Sonarr template."
+echo "You'll be asked for:"
+echo "  • Functional group (ai, media, productivity, etc.)"
+echo "  • App name (machine-readable, lowercase)"
+echo "  • Display name (human-readable)"
+echo "  • Description, icon, and image URL"
+echo "  • Container image details"
+echo ""
+echo "⚠️  Note: After scaffolding, you must manually add the app to"
+echo "    ApplicationSet templates in roles/sno/, roles/hub/, roles/test/"
+echo ""
+echo "Press Ctrl+C to cancel at any time."
+echo ""
 
 # Ask for the group first
-echo "Available groups:"
-ls -1 "$ROOT_DIR/charts/"
-echo
+echo "Available functional groups:"
+ls -1 "$ROOT_DIR/charts/" | sed 's/^/  - /'
+echo ""
 read -rp "Which group will this chart belong to? " CHART_GROUP
 if [[ -z "${CHART_GROUP}" ]]; then
   echo "Chart group is required." >&2
@@ -58,10 +75,16 @@ DEFAULT_APP_GROUP="$(echo "$CHART_GROUP" | sed -E 's/(^|[-_])(\w)/\U\2/g')"
 read -rp "App group (Application.group) [${DEFAULT_APP_GROUP}]: " APP_GROUP
 APP_GROUP=${APP_GROUP:-$DEFAULT_APP_GROUP}
 
-read -rp "Console icon (Application.icon, e.g. 'simple-icons:readthedocs'): " ICON || true
-read -rp "Icon color (Application.iconColor, optional): " ICON_COLOR || true
+echo ""
+echo "Icon options:"
+echo "  - Material Design Icons: mdi:icon-name (e.g., 'mdi:download', 'mdi:television')"
+echo "  - Simple Icons: simple-icons:brand (e.g., 'simple-icons:docker', 'simple-icons:kubernetes')"
+echo "  - CBI Icons: cbi:app-name (e.g., 'cbi:sonarr', 'cbi:radarr')"
+read -rp "Console icon (Application.icon): " ICON || true
 
-read -rp "Console image URL (Application.image, optional): " APP_IMAGE_URL || true
+read -rp "Icon color (Application.iconColor, optional, e.g., 'blue', '#FF5733'): " ICON_COLOR || true
+
+read -rp "Console image URL (Application.image, full URL to logo PNG/SVG): " APP_IMAGE_URL || true
 
 read -rp "Service port (Application.port) [8989]: " PORT
 PORT=${PORT:-8989}
@@ -116,55 +139,47 @@ TARGET_VALUES="$TARGET_CHART_DIR/values.yaml"
 
 mv "$TARGET_VALUES.tmp" "$TARGET_VALUES"
 
-# Add the new application to the appropriate ApplicationSet template
-APPLICATIONSET_TEMPLATE="$ROOT_DIR/cluster/templates/${CHART_GROUP}.yaml"
-if [[ -f "$APPLICATIONSET_TEMPLATE" ]]; then
-  # Check if the chart name already exists in the ApplicationSet
-  if ! grep -q "name: ${CHART_NAME}" "$APPLICATIONSET_TEMPLATE"; then
-    # Find the line with "elements:" and add the new chart after the last "- name:" entry
-    awk -v new_chart="$CHART_NAME" '
-      /^[[:space:]]*elements:[[:space:]]*$/ {
-        in_elements=1
-        print
-        next
-      }
-      in_elements && /^[[:space:]]*-[[:space:]]*name:/ {
-        last_name_line=NR
-        print
-        next
-      }
-      in_elements && /^[[:space:]]*$/ {
-        # Empty line in elements section, continue
-        print
-        next
-      }
-      in_elements && !/^[[:space:]]*-[[:space:]]*name:/ && !/^[[:space:]]*$/ {
-        # End of elements section
-        if (last_name_line > 0) {
-          print "        - name: " new_chart
-        }
-        in_elements=0
-        print
-        next
-      }
-      {print}
-    ' "$APPLICATIONSET_TEMPLATE" > "$APPLICATIONSET_TEMPLATE.tmp"
-
-    # If no elements section was found, we need a different approach
-    if ! grep -q "name: ${CHART_NAME}" "$APPLICATIONSET_TEMPLATE.tmp"; then
-      echo "Warning: Could not automatically add ${CHART_NAME} to ${APPLICATIONSET_TEMPLATE}." >&2
-      echo "Please manually add '        - name: ${CHART_NAME}' to the elements list." >&2
-      rm "$APPLICATIONSET_TEMPLATE.tmp"
-    else
-      mv "$APPLICATIONSET_TEMPLATE.tmp" "$APPLICATIONSET_TEMPLATE"
-      echo "Added ${CHART_NAME} to ApplicationSet template: ${APPLICATIONSET_TEMPLATE}"
-    fi
-  else
-    echo "Chart ${CHART_NAME} already exists in ApplicationSet template."
-  fi
-else
-  echo "Warning: ApplicationSet template not found ($APPLICATIONSET_TEMPLATE); skipping ApplicationSet update." >&2
+# Add gatus section if not present
+if ! grep -q "^gatus:" "$TARGET_VALUES"; then
+  echo "" >> "$TARGET_VALUES"
+  echo "# Gatus monitoring" >> "$TARGET_VALUES"
+  echo "gatus:" >> "$TARGET_VALUES"
+  echo "  enabled: true" >> "$TARGET_VALUES"
+  echo "  interval: 5m" >> "$TARGET_VALUES"
+  echo "  conditions:" >> "$TARGET_VALUES"
+  echo "    - \"[STATUS] == 200\"" >> "$TARGET_VALUES"
+  echo "    - \"[RESPONSE_TIME] < 3000\"" >> "$TARGET_VALUES"
 fi
 
-echo "Scaffold complete. Review the new chart at: charts/${CHART_GROUP}/${CHART_NAME}"
-echo "The chart has been added to the ApplicationSet template and will be deployed automatically."
+echo ""
+echo "Chart scaffolding complete at: charts/${CHART_GROUP}/${CHART_NAME}"
+echo ""
+echo "⚠️  IMPORTANT: You must now add this app to ApplicationSet templates ⚠️"
+echo ""
+echo "Add the following to the 'elements' list in these files:"
+echo "  - roles/sno/templates/${CHART_GROUP}.yaml"
+echo "  - roles/hub/templates/${CHART_GROUP}.yaml"
+echo "  - roles/test/templates/${CHART_GROUP}.yaml"
+echo ""
+echo "Add this entry:"
+echo "          - name: ${CHART_NAME}"
+echo "            group: ${CHART_GROUP}"
+if [[ -n "${ICON}" ]]; then
+  echo "            gatus:"
+  echo "              enabled: true"
+fi
+echo ""
+echo "Example location in the file:"
+echo "    generators:"
+echo "      - list:"
+echo "          elements:"
+echo "            - name: existing-app"
+echo "              group: ${CHART_GROUP}"
+echo "            - name: ${CHART_NAME}  # ← ADD THIS"
+echo "              group: ${CHART_GROUP}"
+if [[ -n "${ICON}" ]]; then
+  echo "              gatus:"
+  echo "                enabled: true"
+fi
+echo ""
+echo "💡 Tip: Search for '${CHART_GROUP}.yaml' in the roles directory to find all templates"

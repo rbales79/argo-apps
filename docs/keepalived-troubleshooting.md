@@ -1,364 +1,196 @@
-# Keepalived Operator Troubleshooting Guide
+# Keepalived Operator Troubleshooting
 
-This guide helps diagnose and fix issues with the keepalived-operator managing external IPs for services in OpenShift.
+## Quick Diagnostics
 
-## Architecture Overview
+Run these commands to check the current state:
 
-The keepalived-operator uses VRRP (Virtual Router Redundancy Protocol) to manage virtual IPs (external IPs) that can float between cluster nodes. Services annotated with `keepalived-operator.redhat-cop.io/keepalivedgroup` get their external IPs managed by keepalived.
-
-## Common Issues and Solutions
-
-### 1. Check Keepalived Operator Status
-
-First, verify the operator is running:
+### 1. Check if the ApplicationSet exists
 
 ```bash
-# Check operator deployment
-oc get deployment -n keepalived-operator keepalived-operator-controller-manager
+oc get applicationset -n openshift-gitops | grep keepalived
+```
 
-# Check operator pods
+### 2. Check if the Application was created
+
+```bash
+oc get application -n openshift-gitops keepalived-operator
+```
+
+### 3. Check Application status
+
+```bash
+oc describe application -n openshift-gitops keepalived-operator
+```
+
+### 4. Check if namespace was created
+
+```bash
+oc get namespace keepalived-operator
+```
+
+### 5. Check operator subscription
+
+```bash
+oc get subscription -n keepalived-operator keepalived-operator
+```
+
+### 6. Check operator deployment
+
+```bash
+oc get deployment -n keepalived-operator
+```
+
+### 7. Check operator pods
+
+```bash
 oc get pods -n keepalived-operator
-
-# Check operator logs
-oc logs -n keepalived-operator deployment/keepalived-operator-controller-manager -f
 ```
 
-**Expected:** Operator pod should be Running with 1/1 ready.
-
-### 2. Check KeepalivedGroup Configuration
-
-Verify the KeepalivedGroup resource exists and is configured correctly:
+### 8. Check KeepalivedGroup CRD
 
 ```bash
-# List all KeepalivedGroups
+oc get crd keepalivedgroups.redhatcop.redhat.io
+```
+
+### 9. Check KeepalivedGroup resources
+
+```bash
 oc get keepalivedgroup -n keepalived-operator
-
-# Describe the LAN group
-oc get keepalivedgroup -n keepalived-operator lan -o yaml
 ```
 
-**Expected output:**
-```yaml
-apiVersion: redhatcop.redhat.io/v1alpha1
-kind: KeepalivedGroup
-metadata:
-  name: lan
-  namespace: keepalived-operator
-spec:
-  image: registry.redhat.io/openshift4/ose-keepalived-ipfailover
-  interface: br-ex
-  interfaceFromIP: 192.168.1.1  # Your gateway IP
-  nodeSelector:
-    node-role.kubernetes.io/master: ''
-```
-
-**Key fields:**
-- `interface`: Network interface (usually `br-ex` for OpenShift)
-- `interfaceFromIP`: Gateway IP used to determine which interface to use
-- `nodeSelector`: Nodes where keepalived pods run (typically master nodes)
-
-### 3. Check Keepalived Pods on Master Nodes
-
-Keepalived pods should be running on each master node:
-
-```bash
-# List keepalived pods
-oc get pods -n keepalived-operator -l keepalivedgroup=lan -o wide
-
-# Check logs from keepalived pods
-oc logs -n keepalived-operator -l keepalivedgroup=lan --tail=50
-```
-
-**Expected:** One keepalived pod per master node, all Running.
-
-### 4. Verify Service Configuration
-
-Check the service that should have the external IP:
-
-```bash
-# Get the service
-oc get svc -n plex plex -o yaml
-
-# Check for required annotation
-oc get svc -n plex plex -o jsonpath='{.metadata.annotations.keepalived-operator\.redhat-cop\.io/keepalivedgroup}'
-```
-
-**Required service configuration:**
-```yaml
-metadata:
-  annotations:
-    keepalived-operator.redhat-cop.io/keepalivedgroup: "keepalived-operator/lan"
-spec:
-  type: ClusterIP  # Must be ClusterIP
-  externalIPs:
-    - 192.168.1.200
-```
-
-**Common mistakes:**
-- Missing annotation
-- Wrong annotation format (must be `"namespace/name"`)
-- Service type is LoadBalancer instead of ClusterIP
-- External IP conflicts with another service
-
-### 5. Check Network Interface on Nodes
-
-Verify the network interface exists on master nodes:
-
-```bash
-# SSH to a master node or use debug pod
-oc debug node/<master-node-name>
-
-# Inside the debug pod
-chroot /host
-
-# List network interfaces
-ip addr show
-
-# Check if br-ex exists and can reach the gateway
-ip route show | grep 192.168.1.1
-
-# Check for IP conflicts
-arping -I br-ex -c 3 192.168.1.200
-```
-
-**Expected:**
-- `br-ex` interface exists
-- Gateway `192.168.1.1` is reachable via `br-ex`
-- No ARP replies for `192.168.1.200` (unless keepalived is already managing it)
-
-### 6. Check IP Conflicts
-
-Ensure the external IP isn't already in use:
-
-```bash
-# From your local machine
-ping 192.168.1.200
-
-# Check ARP table
-arp -a | grep 192.168.1.200
-
-# Scan for the IP
-nmap -sn 192.168.1.200
-```
-
-**If IP responds but service doesn't work:** IP conflict with another device.
-
-### 7. Verify VRRP Traffic
-
-Keepalived uses VRRP multicast traffic (protocol 112):
-
-```bash
-# On a master node
-tcpdump -i br-ex vrrp -n
-
-# Should see VRRP advertisements
-```
-
-**Expected:** VRRP packets every few seconds.
-
-### 8. Check Firewall Rules
-
-Ensure VRRP traffic isn't blocked:
-
-```bash
-# On master nodes
-iptables -L -n | grep -i vrrp
-
-# Check if protocol 112 is allowed
-iptables -L -n | grep 112
-```
-
-**Required:** VRRP (IP protocol 112) must be allowed between master nodes.
-
-### 9. Check Node Selector
-
-Verify master nodes have the correct label:
-
-```bash
-# List master nodes
-oc get nodes -l node-role.kubernetes.io/master
-
-# If no results, check for control-plane label
-oc get nodes -l node-role.kubernetes.io/control-plane
-```
-
-**Fix:** If using `control-plane` label, update KeepalivedGroup:
-```yaml
-spec:
-  nodeSelector:
-    node-role.kubernetes.io/control-plane: ''
-```
-
-### 10. Validate External IP Assignment
-
-Check if the IP is actually assigned to a node:
-
-```bash
-# On each master node
-ip addr show br-ex | grep 192.168.1.200
-```
-
-**Expected:** IP should be assigned to `br-ex` on the active master node.
-
-## Common Error Messages
-
-### "Failed to create keepalived pod"
-
-**Cause:** Image pull error or node selector mismatch.
-
-**Solution:**
-1. Verify image exists: `registry.redhat.io/openshift4/ose-keepalived-ipfailover`
-2. Check node selector matches your nodes
-3. Verify pull secrets exist
-
-### "Interface not found"
-
-**Cause:** `interface` or `interfaceFromIP` doesn't match node configuration.
-
-**Solution:**
-1. Verify interface name: `oc debug node/<node> -- chroot /host ip link show`
-2. Update KeepalivedGroup with correct interface
-3. If using OVN-Kubernetes, interface might be `br-ex` or `ovs-system`
-
-### "IP not responding"
-
-**Cause:** Multiple possible issues.
-
-**Solution:**
-1. Check keepalived pods are running
-2. Verify no IP conflicts
-3. Check firewall rules
-4. Verify routing on your network
-
-## Configuration Examples
-
-### Single Network (LAN)
-
-```yaml
-network:
-  lan:
-    defaultGateway: 192.168.1.1
-```
-
-This creates one KeepalivedGroup named `lan`.
-
-### Multiple Networks
-
-```yaml
-network:
-  lan:
-    defaultGateway: 192.168.1.1
-  dmz:
-    defaultGateway: 192.168.10.1
-  mgmt:
-    defaultGateway: 192.168.100.1
-```
-
-This creates three KeepalivedGroups: `lan`, `dmz`, `mgmt`.
-
-### Service Using Keepalived
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: plex
-  annotations:
-    keepalived-operator.redhat-cop.io/keepalivedgroup: "keepalived-operator/lan"
-spec:
-  type: ClusterIP
-  externalIPs:
-    - 192.168.1.200
-  ports:
-    - name: http
-      port: 32400
-      targetPort: 32400
-  selector:
-    app: plex
-```
-
-## Advanced Troubleshooting
-
-### Enable Debug Logging
-
-Edit the operator deployment to enable debug logs:
-
-```bash
-oc set env deployment/keepalived-operator-controller-manager -n keepalived-operator ANSIBLE_VERBOSITY=4
-```
-
-### Check Operator Events
+### 10. Check for events
 
 ```bash
 oc get events -n keepalived-operator --sort-by='.lastTimestamp'
 ```
 
-### Manually Test VRRP
+## Common Issues
 
-Create a test keepalived configuration:
+### Issue 1: ApplicationSet not creating Application
+
+**Check:**
 
 ```bash
-# On a master node
-cat > /tmp/keepalived.conf <<EOF
-vrrp_instance VI_1 {
-    state MASTER
-    interface br-ex
-    virtual_router_id 51
-    priority 100
-    virtual_ipaddress {
-        192.168.1.200
-    }
-}
+oc get applicationset -n openshift-gitops -o yaml | grep -A 50 keepalived
+```
+
+**Possible causes:**
+
+- Sync wave 50 hasn't been reached yet
+- Values aren't being passed correctly
+- ApplicationSet generator has issues
+
+### Issue 2: Application exists but not syncing
+
+**Check:**
+
+```bash
+oc get application keepalived-operator -n openshift-gitops -o yaml
+```
+
+**Look for:**
+
+- Sync status
+- Health status
+- Error messages in status conditions
+
+### Issue 3: Operator not installing
+
+**Check:**
+
+```bash
+oc get csv -n keepalived-operator
+```
+
+**Possible causes:**
+
+- Subscription pointing to wrong catalog source
+- Starting CSV version not available
+- Catalog source not healthy
+
+**Check catalog sources:**
+
+```bash
+oc get catalogsource -n openshift-marketplace
+oc get pods -n openshift-marketplace
+```
+
+### Issue 4: KeepalivedGroup not being created
+
+**Check the rendered values:**
+
+```bash
+oc get application keepalived-operator -n openshift-gitops -o jsonpath='{.spec.source.helm.valuesObject}' | yq eval -P
+```
+
+**Look for:**
+
+- Does `network.lan.defaultGateway` exist?
+- Are values structured correctly at root level?
+
+### Issue 5: SCC permissions
+
+**Check:**
+
+```bash
+oc get scc controller-manager -o yaml
+```
+
+**Verify user:**
+
+```bash
+oc get scc controller-manager -o jsonpath='{.users}'
+```
+
+Should include: `system:serviceaccount:keepalived-operator:default`
+
+## Expected Resource Order
+
+1. **Wave -1**: Namespace
+2. **Wave 0**: Subscription, OperatorGroup
+3. **Wave 1**: SecurityContextConstraints
+4. **Wave 10**: KeepalivedGroup(s)
+
+## Manual Test
+
+To test if the chart would render correctly with your values:
+
+```bash
+# Create a test values file
+cat > /tmp/keepalived-test-values.yaml <<EOF
+network:
+  lan:
+    defaultGateway: 192.168.1.1
+cluster:
+  name: sno
 EOF
 
-# Run keepalived in foreground
-keepalived -n -l -f /tmp/keepalived.conf
+# Test rendering (requires helm)
+helm template test charts/infrastructure/keepalived-operator -f /tmp/keepalived-test-values.yaml
 ```
 
-## Recovery Steps
+## Force Sync
 
-### Restart Keepalived Pods
+If everything looks correct but it's not deploying:
 
 ```bash
-# Delete keepalived pods (they'll be recreated)
-oc delete pods -n keepalived-operator -l keepalivedgroup=lan
+# Force sync the main cluster application
+oc patch application cluster -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+
+# Or force sync the keepalived application specifically
+oc patch application keepalived-operator -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
 ```
 
-### Restart Operator
+## Logs
+
+Check ArgoCD application controller logs:
 
 ```bash
-oc rollout restart deployment/keepalived-operator-controller-manager -n keepalived-operator
+oc logs -n openshift-gitops deployment/openshift-gitops-application-controller | grep keepalived
 ```
 
-### Recreate KeepalivedGroup
+Check operator logs (if operator is running):
 
 ```bash
-# Delete and let Argo CD recreate
-oc delete keepalivedgroup -n keepalived-operator lan
-
-# Wait for Argo CD to sync
-# Or manually recreate via:
-oc apply -f charts/infrastructure/keepalived-operator/templates/keepalivedgroups.yaml
+oc logs -n keepalived-operator -l control-plane=controller-manager --tail=100
 ```
-
-## Verification Checklist
-
-- [ ] Keepalived operator pod is Running
-- [ ] KeepalivedGroup resource exists with correct spec
-- [ ] Keepalived pods are running on master nodes (one per master)
-- [ ] Service has correct annotation: `keepalived-operator.redhat-cop.io/keepalivedgroup: "keepalived-operator/lan"`
-- [ ] Service type is ClusterIP (not LoadBalancer)
-- [ ] External IP is defined in service spec
-- [ ] No IP conflicts on the network
-- [ ] br-ex interface exists on master nodes
-- [ ] Gateway is reachable from br-ex
-- [ ] VRRP traffic is visible on br-ex
-- [ ] Firewall allows VRRP (protocol 112)
-- [ ] Master nodes have correct label (master or control-plane)
-- [ ] IP is assigned to br-ex on one master node
-
-## Additional Resources
-
-- [Keepalived Operator Documentation](https://github.com/redhat-cop/keepalived-operator)
-- [VRRP Protocol RFC 5798](https://tools.ietf.org/html/rfc5798)
-- [OpenShift Networking Documentation](https://docs.openshift.com/container-platform/latest/networking/understanding-networking.html)
